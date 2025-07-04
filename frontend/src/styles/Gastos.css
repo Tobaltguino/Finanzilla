@@ -1,0 +1,260 @@
+.gastos-layout {
+  display: flex;
+  gap: 30px;
+  padding: 20px;
+  align-items: flex-start;
+  flex-wrap: nowrap; /* evita que se apilen verticalmente */
+  max-width: 900px; /* ancho máximo para que quepan lado a lado */
+  margin: 20px auto; /* centrar horizontalmente */
+  height: auto;
+  /* opcional: background para ver el área */
+  /* background: #f5f5f5; */
+}
+
+.limite-info {
+  flex: 0 0 320px; /* ancho fijo */
+  background-color: #eafaf1;
+  border: 3px solid #27ae60;
+  border-radius: 16px;
+  padding: 30px 25px;
+  text-align: center;
+  font-size: 1.15rem;
+  box-shadow: 0 5px 15px rgba(39, 174, 96, 0.3);
+
+  position: sticky;
+  top: 20px;
+  height: fit-content;
+  max-height: calc(100vh - 40px);
+  overflow-y: auto;
+}
+
+.lista-gastos {
+  flex: 1; /* que ocupe todo el espacio restante */
+  min-width: 300px;
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 0 10px rgb(0 0 0 / 0.1);
+  max-height: none;
+  overflow-y: visible;
+}
+
+
+.limite-info p {
+  margin: 15px 0;
+  font-weight: 600;
+  font-size: 1.3rem;
+  display: flex;
+  justify-content: center;  /* Centra horizontalmente */
+  align-items: center;      /* Centra verticalmente */
+  gap: 8px;
+  flex-direction: column;   /* Texto y valor en columna */
+  text-align: center;
+}
+
+.limite-info p strong {
+  min-width: auto;
+  text-align: center;
+  color: #2c3e50;
+  font-weight: 700;
+}
+
+/* Colores y estilos para Gastado y Disponible */
+.limite-info p.gastado {
+  color: #e74c3c;
+  font-weight: 800;
+  font-size: 1.5rem;
+}
+
+.limite-info p.disponible {
+  color: #27ae60;
+  font-weight: 800;
+  font-size: 1.5rem;
+}
+
+.lista-gastos {
+  flex: 1; /* Ocupa resto de espacio */
+  min-width: 300px;
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 0 10px rgb(0 0 0 / 0.1);
+  max-height: none;
+  overflow-y: visible;
+}
+
+.lista-gastos h3 {
+  margin-bottom: 10px;
+  color: #2c3e50;
+}
+
+/* Resto de estilos igual */
+
+.gasto-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #ffffff;
+  border: 1px solid #27ae60;
+  border-radius: 10px;
+  padding: 12px;
+  margin-bottom: 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.icono {
+  font-size: 22px;
+  color: #27ae60;
+  margin-right: 12px;
+}
+
+.info {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.categoria {
+  font-weight: 600;
+}
+
+.fecha {
+  font-size: 0.85rem;
+  color: #888;
+}
+
+.monto {
+  font-weight: bold;
+  color: #e74c3c;
+  font-size: 1rem;
+}
+
+.custom-datepicker {
+  padding: 8px 12px;
+  border: 2px solid #27ae60;
+  border-radius: 6px;
+  font-size: 1rem;
+  color: #2c3e50;
+  font-weight: bold;
+  background-color: #eafaf1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  text-transform: capitalize;
+}
+
+.react-datepicker {
+  border: 2px solid #27ae60;
+  border-radius: 8px;
+  font-family: Arial, sans-serif;
+}
+
+.react-datepicker__current-month {
+  color: #27ae60;
+  font-weight: bold;
+}
+
+.react-datepicker__month-option--selected,
+.react-datepicker__year-option--selected {
+  background-color: #27ae60;
+  color: white;
+}
+
+.react-datepicker__month-option:hover,
+.react-datepicker__year-option:hover {
+  background-color: #c8f7d1;
+}
+
+.agregar-btn {
+  margin: 30px auto 0;
+  background-color: #27ae60;
+  color: white;
+  border: none;
+  padding: 14px 24px;
+  border-radius: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 1.1rem;
+  width: fit-content;
+  box-shadow: 0 5px 15px rgba(39, 174, 96, 0.5);
+  transition: background-color 0.3s ease;
+}
+
+.agregar-btn:hover {
+  background-color: #219150;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0,0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+}
+
+.modal {
+  background: white;
+  padding: 25px;
+  border-radius: 12px;
+  width: 350px;
+  position: relative;
+}
+
+.modal-close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: transparent;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+}
+
+.icon-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 10px 0;
+}
+
+.icon-option {
+  border: 2px solid #ccc;
+  border-radius: 8px;
+  padding: 10px;
+  cursor: pointer;
+  text-align: center;
+  width: 60px;
+  font-size: 1.3rem;
+  color: #27ae60;
+}
+
+.icon-option.selected {
+  border-color: #27ae60;
+  background-color: #eafaf1;
+}
+
+.cat-label {
+  font-size: 0.75rem;
+  margin-top: 4px;
+}
+
+.guardar-btn {
+  margin-top: 15px;
+  background-color: #27ae60;
+  color: white;
+  border: none;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-weight: bold;
+  width: 100%;
+  cursor: pointer;
+}

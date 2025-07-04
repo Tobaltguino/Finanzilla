@@ -1,0 +1,156 @@
+import React, { useState } from 'react';
+import {
+  FaUtensils, FaCar, FaHome, FaSmile, FaChevronDown, FaPlus, FaTimes
+} from 'react-icons/fa';
+import DatePicker from 'react-datepicker';
+import { es } from 'date-fns/locale';
+import 'react-datepicker/dist/react-datepicker.css';
+import '../../styles/Gastos.css';
+
+const categoriasDisponibles = [
+  { nombre: 'Comida', icono: <FaUtensils /> },
+  { nombre: 'Transporte', icono: <FaCar /> },
+  { nombre: 'Renta', icono: <FaHome /> },
+  { nombre: 'Ocio', icono: <FaSmile /> },
+];
+
+const CustomInput = React.forwardRef(({ value, onClick }, ref) => (
+  <button className="custom-datepicker" onClick={onClick} ref={ref}>
+    {value} <FaChevronDown />
+  </button>
+));
+
+function Gastos() {
+  const [fechaSeleccionada, setFechaSeleccionada] = useState(new Date());
+  const [gastos, setGastos] = useState([
+    { categoria: 'Comida', monto: 50.0, fecha: '2025-07-01', icono: <FaUtensils /> },
+    { categoria: 'Transporte', monto: 25.0, fecha: '2025-07-02', icono: <FaCar /> },
+    { categoria: 'Renta', monto: 400.0, fecha: '2025-06-30', icono: <FaHome /> },
+    { categoria: 'Ocio', monto: 70.0, fecha: '2025-07-02', icono: <FaSmile /> },
+    { categoria: 'Comida', monto: 50.0, fecha: '2025-07-01', icono: <FaUtensils /> },
+    { categoria: 'Transporte', monto: 25.0, fecha: '2025-07-02', icono: <FaCar /> },
+    { categoria: 'Renta', monto: 400.0, fecha: '2025-06-30', icono: <FaHome /> },
+    { categoria: 'Ocio', monto: 70.0, fecha: '2025-07-02', icono: <FaSmile /> },
+    { categoria: 'Comida', monto: 50.0, fecha: '2025-07-01', icono: <FaUtensils /> },
+    { categoria: 'Transporte', monto: 25.0, fecha: '2025-07-02', icono: <FaCar /> },
+    { categoria: 'Renta', monto: 400.0, fecha: '2025-06-30', icono: <FaHome /> },
+    { categoria: 'Ocio', monto: 70.0, fecha: '2025-07-02', icono: <FaSmile /> },
+    { categoria: 'Comida', monto: 50.0, fecha: '2025-07-01', icono: <FaUtensils /> },
+    { categoria: 'Transporte', monto: 25.0, fecha: '2025-07-02', icono: <FaCar /> },
+    { categoria: 'Renta', monto: 400.0, fecha: '2025-06-30', icono: <FaHome /> },
+    { categoria: 'Ocio', monto: 70.0, fecha: '2025-07-02', icono: <FaSmile /> },
+  ]);
+
+  const [mostrarModal, setMostrarModal] = useState(false);
+  const [categoriaSeleccionada, setCategoriaSeleccionada] = useState(null);
+  const [monto, setMonto] = useState('');
+
+  const mes = (fechaSeleccionada.getMonth() + 1).toString().padStart(2, '0');
+  const anio = fechaSeleccionada.getFullYear().toString();
+  const limiteUsuario = 1000.0;
+
+  const gastosFiltrados = gastos.filter((g) => {
+    const [año, mesStr] = g.fecha.split('-');
+    return mesStr === mes && año === anio;
+  });
+
+  const totalGastado = gastosFiltrados.reduce((acc, g) => acc + g.monto, 0);
+  const gastosOrdenados = [...gastosFiltrados].sort(
+    (a, b) => new Date(b.fecha) - new Date(a.fecha)
+  );
+
+  const handleGuardarGasto = () => {
+    if (!categoriaSeleccionada || !monto) {
+      alert('Completa todos los campos');
+      return;
+    }
+
+    const nuevoGasto = {
+      categoria: categoriaSeleccionada.nombre,
+      icono: categoriaSeleccionada.icono,
+      monto: parseFloat(monto),
+      fecha: new Date().toISOString().slice(0, 10),
+    };
+
+    setGastos([...gastos, nuevoGasto]);
+    setCategoriaSeleccionada(null);
+    setMonto('');
+    setMostrarModal(false);
+  };
+
+  return (
+    <div className="gastos-layout">
+      <div className="limite-info sticky-box">
+        <div className="selector-fecha">
+          <DatePicker
+            selected={fechaSeleccionada}
+            onChange={(date) => setFechaSeleccionada(date)}
+            dateFormat="MMMM, yyyy"
+            showMonthYearPicker
+            locale={es}
+            customInput={<CustomInput />}
+          />
+        </div>
+        <h2>Presupuesto Mensual</h2>
+        <p><strong>Límite:</strong> {limiteUsuario.toFixed(2)}$</p>
+        <p><strong>Gastado:</strong> {totalGastado.toFixed(2)}$</p>
+        <p><strong>Disponible:</strong> {(limiteUsuario - totalGastado).toFixed(2)}$</p>
+        <button className="agregar-btn" onClick={() => setMostrarModal(true)}>
+          <FaPlus /> Agregar Gasto
+        </button>
+      </div>
+
+      <div className="lista-gastos">
+        <h3>Gastos recientes</h3>
+        {gastosOrdenados.map((gasto, idx) => (
+          <div className="gasto-item" key={idx}>
+            <div className="icono">{gasto.icono}</div>
+            <div className="info">
+              <span className="categoria">{gasto.categoria}</span>
+              <span className="fecha">{gasto.fecha}</span>
+            </div>
+            <div className="monto">- {gasto.monto.toFixed(2)}$</div>
+          </div>
+        ))}
+      </div>
+
+      {/* MODAL para agregar gasto */}
+      {mostrarModal && (
+        <div className="modal-overlay">
+          <div className="modal">
+            <button className="modal-close" onClick={() => setMostrarModal(false)}>
+              <FaTimes />
+            </button>
+            <h3>Nuevo Gasto</h3>
+
+            <label>Categoría:</label>
+            <div className="icon-grid">
+              {categoriasDisponibles.map((cat, idx) => (
+                <div
+                  key={idx}
+                  className={`icon-option ${categoriaSeleccionada?.nombre === cat.nombre ? 'selected' : ''}`}
+                  onClick={() => setCategoriaSeleccionada(cat)}
+                >
+                  {cat.icono}
+                  <div className="cat-label">{cat.nombre}</div>
+                </div>
+              ))}
+            </div>
+
+            <label>Monto:</label>
+            <input
+              type="number"
+              placeholder="Ej: 100.00"
+              value={monto}
+              onChange={(e) => setMonto(e.target.value)}
+            />
+
+            <button className="guardar-btn" onClick={handleGuardarGasto}>Guardar</button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+export default Gastos;

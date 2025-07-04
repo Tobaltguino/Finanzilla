@@ -1,0 +1,44 @@
+.ajustes-container {
+  padding: 20px;
+  font-family: Arial, sans-serif;
+}
+
+.ajustes-container h2 {
+  margin-bottom: 20px;
+  color: #2c3e50;
+}
+
+.ajuste-section {
+  margin-bottom: 30px;
+}
+
+.ajuste-section h3 {
+  margin-bottom: 10px;
+  color: #27ae60;
+}
+
+.ajuste-section ul {
+  list-style: none;
+  padding-left: 0;
+}
+
+.ajuste-section li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  margin-bottom: 8px;
+  background-color: #f8f8f8;
+  border-radius: 6px;
+  transition: background 0.2s;
+}
+
+.ajuste-section li:hover {
+  background-color: #e0e0e0;
+  cursor: pointer;
+}
+
+.ajuste-icon {
+  color: #27ae60;
+  font-size: 18px;
+}
