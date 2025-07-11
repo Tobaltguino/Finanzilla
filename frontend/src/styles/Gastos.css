@@ -1,31 +1,29 @@
 .gastos-layout {
-  display: flex;
-  gap: 30px;
-  padding: 20px;
-  align-items: flex-start;
-  flex-wrap: nowrap; /* evita que se apilen verticalmente */
-  max-width: 900px; /* ancho máximo para que quepan lado a lado */
-  margin: 20px auto; /* centrar horizontalmente */
-  height: auto;
-  /* opcional: background para ver el área */
-  /* background: #f5f5f5; */
+  
+  flex-direction: column; /* apila verticalmente */
+  gap: 1px;
+  padding: 10px;
+  align-items: center;
+  max-width: 900px;
+  max-height: 900px;
+  margin: 20px;
+  height: 900px;
+  width: 800px;
 }
 
 .limite-info {
-  flex: 0 0 320px; /* ancho fijo */
   background-color: #eafaf1;
+  gap: 1px;
   border: 3px solid #27ae60;
   border-radius: 16px;
   padding: 30px 25px;
   text-align: center;
-  font-size: 1.15rem;
+  font-size: 1.2rem;
   box-shadow: 0 5px 15px rgba(39, 174, 96, 0.3);
 
-  position: sticky;
-  top: 20px;
+  
   height: fit-content;
   max-height: calc(100vh - 40px);
-  overflow-y: auto;
 }
 
 .lista-gastos {
@@ -43,7 +41,7 @@
 .limite-info p {
   margin: 15px 0;
   font-weight: 600;
-  font-size: 1.3rem;
+  font-size: 1.2rem;
   display: flex;
   justify-content: center;  /* Centra horizontalmente */
   align-items: center;      /* Centra verticalmente */
@@ -52,13 +50,14 @@
   text-align: center;
 }
 
-.limite-info p strong {
-  min-width: auto;
-  text-align: center;
+.limite-info p strong { /*Mueve el texto "Gastado"*/
+  font-size: 1.2rem;
+  font-weight: 600;
   color: #2c3e50;
-  font-weight: 700;
+  text-align: center;
+  margin-left: 5px;  /* Mueve hacia la derecha */
+  margin-top: 5px;    /* Mueve hacia abajo */
 }
-
 /* Colores y estilos para Gastado y Disponible */
 .limite-info p.gastado {
   color: #e74c3c;
@@ -103,7 +102,7 @@
 }
 
 .icono {
-  font-size: 22px;
+  font-size: 2px;
   color: #27ae60;
   margin-right: 12px;
 }
@@ -167,7 +166,7 @@
 }
 
 .agregar-btn {
-  margin: 30px auto 0;
+  margin: 5px auto 0;
   background-color: #27ae60;
   color: white;
   border: none;
@@ -176,12 +175,34 @@
   font-weight: 700;
   cursor: pointer;
   display: flex;
-  align-items: center;
+  margin-top: 10px;
+  margin-left: 100px;
+
   gap: 10px;
-  font-size: 1.1rem;
+  font-size: 1.rem;
   width: fit-content;
   box-shadow: 0 5px 15px rgba(39, 174, 96, 0.5);
   transition: background-color 0.3s ease;
+}
+
+.agregar-btn-eliminar {
+  margin: 5px auto 0;
+  background-color: #771818;
+  color: white;
+  border: none;
+  padding: 14px 24px; 
+  border-radius: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 1.rem;
+  width: fit-content;
+  box-shadow: 0 5px 15px rgba(39, 174, 96, 0.5);
+  transition: background-color 0.3s ease;
+  margin-top: -50px;
+  margin-left: 400px;
 }
 
 .agregar-btn:hover {
@@ -257,4 +278,22 @@
   font-weight: bold;
   width: 100%;
   cursor: pointer;
+}
+
+
+.input-limite {
+  margin-left: 15px;
+  padding: 4px 2px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  width: 150px;
+  font-weight: bold;
+  font-size: 16px;
+  color: #2c3e50;
+  text-align: center; /* ⬅️ Esto centra el texto dentro del input */
+}
+.input-limite::-webkit-inner-spin-button,
+.input-limite::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
 }
