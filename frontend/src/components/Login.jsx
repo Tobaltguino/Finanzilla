@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   MdEmail,
@@ -9,13 +9,40 @@ import {
 } from 'react-icons/md';
 import '../styles/Login.css';
 
+
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [emailError, setEmailError] = useState('');
-  const [passwordError, setPasswordError] = useState('');
+  const [passwordError, setPasswordError] = useState(''); 
   const navigate = useNavigate();
+
+  // ✅ Login con Google
+  useEffect(() => {
+    /* global google */
+    if (window.google) {
+      window.google.accounts.id.initialize({
+        client_id: '701138400803-dj44aq2cdko46ji8icng62qjued10f0h.apps.googleusercontent.com', // 👈 pon aquí tu client ID real
+        callback: handleCredentialResponse,
+      });
+
+      window.google.accounts.id.renderButton(
+        document.getElementById('googleSignInDiv'),
+        {
+          theme: 'outline',
+          size: 'large',
+          width: '100%',
+        }
+      );
+    }
+  }, []);
+
+  const handleCredentialResponse = (response) => {
+    console.log("Token JWT de Google:", response.credential);
+    // Puedes enviar este token al backend para validación
+    navigate('/transacciones'); // redirige tras login exitoso
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -115,6 +142,11 @@ const Login = () => {
             ¿No tienes cuenta? <Link to="/signup">Regístrate</Link>
           </p>
         </form>
+
+        {/* ✅ Botón de login con Google */}
+        <div style={{ marginTop: '20px' }}>
+          <div id="googleSignInDiv"></div>
+        </div>
       </div>
     </div>
   );

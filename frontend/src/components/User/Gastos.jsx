@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import {
-  FaUtensils, FaCar, FaHome, FaSmile, FaChevronDown, FaPlus, FaTimes
+  FaUtensils, FaCar, FaHome, FaSmile, FaChevronDown, FaPlus, FaTimes, FaMinus
 } from 'react-icons/fa';
 import DatePicker from 'react-datepicker';
 import { es } from 'date-fns/locale';
@@ -23,23 +23,13 @@ const CustomInput = React.forwardRef(({ value, onClick }, ref) => (
 function Gastos() {
   const [fechaSeleccionada, setFechaSeleccionada] = useState(new Date());
   const [gastos, setGastos] = useState([
-    { categoria: 'Comida', monto: 50.0, fecha: '2025-07-01', icono: <FaUtensils /> },
-    { categoria: 'Transporte', monto: 25.0, fecha: '2025-07-02', icono: <FaCar /> },
-    { categoria: 'Renta', monto: 400.0, fecha: '2025-06-30', icono: <FaHome /> },
-    { categoria: 'Ocio', monto: 70.0, fecha: '2025-07-02', icono: <FaSmile /> },
-    { categoria: 'Comida', monto: 50.0, fecha: '2025-07-01', icono: <FaUtensils /> },
-    { categoria: 'Transporte', monto: 25.0, fecha: '2025-07-02', icono: <FaCar /> },
-    { categoria: 'Renta', monto: 400.0, fecha: '2025-06-30', icono: <FaHome /> },
-    { categoria: 'Ocio', monto: 70.0, fecha: '2025-07-02', icono: <FaSmile /> },
-    { categoria: 'Comida', monto: 50.0, fecha: '2025-07-01', icono: <FaUtensils /> },
-    { categoria: 'Transporte', monto: 25.0, fecha: '2025-07-02', icono: <FaCar /> },
-    { categoria: 'Renta', monto: 400.0, fecha: '2025-06-30', icono: <FaHome /> },
-    { categoria: 'Ocio', monto: 70.0, fecha: '2025-07-02', icono: <FaSmile /> },
-    { categoria: 'Comida', monto: 50.0, fecha: '2025-07-01', icono: <FaUtensils /> },
-    { categoria: 'Transporte', monto: 25.0, fecha: '2025-07-02', icono: <FaCar /> },
-    { categoria: 'Renta', monto: 400.0, fecha: '2025-06-30', icono: <FaHome /> },
-    { categoria: 'Ocio', monto: 70.0, fecha: '2025-07-02', icono: <FaSmile /> },
-  ]);
+    { categoria: 'Comida', monto: 5000, fecha: '2025-07-01', icono: <FaUtensils /> },
+    { categoria: 'Transporte', monto: 2500, fecha: '2025-07-02', icono: <FaCar /> },
+    { categoria: 'Renta', monto: 4000, fecha: '2025-06-30', icono: <FaHome /> },
+    { categoria: 'Ocio', monto: 7000, fecha: '2025-07-02', icono: <FaSmile /> },
+    { categoria: 'Comida', monto: 5000, fecha: '2025-07-01', icono: <FaUtensils /> },
+   
+    ]);
 
   const [mostrarModal, setMostrarModal] = useState(false);
   const [categoriaSeleccionada, setCategoriaSeleccionada] = useState(null);
@@ -47,7 +37,8 @@ function Gastos() {
 
   const mes = (fechaSeleccionada.getMonth() + 1).toString().padStart(2, '0');
   const anio = fechaSeleccionada.getFullYear().toString();
-  const limiteUsuario = 1000.0;
+  const [limiteUsuario, setLimiteUsuario] = useState(1000.0);
+
 
   const gastosFiltrados = gastos.filter((g) => {
     const [año, mesStr] = g.fecha.split('-');
@@ -85,22 +76,36 @@ function Gastos() {
           <DatePicker
             selected={fechaSeleccionada}
             onChange={(date) => setFechaSeleccionada(date)}
-            dateFormat="MMMM, yyyy"
-            showMonthYearPicker
+            dateFormat="dd 'de' MMMM, yyyy" // ← muestra día, mes y año
             locale={es}
             customInput={<CustomInput />}
           />
         </div>
         <h2>Presupuesto Mensual</h2>
-        <p><strong>Límite:</strong> {limiteUsuario.toFixed(2)}$</p>
-        <p><strong>Gastado:</strong> {totalGastado.toFixed(2)}$</p>
-        <p><strong>Disponible:</strong> {(limiteUsuario - totalGastado).toFixed(2)}$</p>
+        <label className="limite-label">
+          <strong>Límite:</strong>
+          <div className="input-con-simbolo">
+            <span className="simbolo">$</span>
+            <input
+              type="number"
+              value={limiteUsuario}
+              onChange={(e) => setLimiteUsuario(parseFloat(e.target.value))}
+              className="input-limite"
+            />
+          </div>
+        </label>
+        <p><strong>Gastado:</strong> ${totalGastado.toLocaleString('es-CL', { minimumFractionDigits: 0 })}</p>
+        <p><strong>Disponible:</strong> ${ (limiteUsuario - totalGastado).toLocaleString('es-CL', { minimumFractionDigits: 0 }) }</p>
+
         <button className="agregar-btn" onClick={() => setMostrarModal(true)}>
           <FaPlus /> Agregar Gasto
         </button>
+        <button className="agregar-btn-eliminar" onClick={() => setMostrarModal(true)}>
+          <FaMinus /> Eliminar Gasto
+        </button>
       </div>
 
-      <div className="lista-gastos">
+      <div className="lista-gastos">    
         <h3>Gastos recientes</h3>
         {gastosOrdenados.map((gasto, idx) => (
           <div className="gasto-item" key={idx}>
@@ -109,7 +114,9 @@ function Gastos() {
               <span className="categoria">{gasto.categoria}</span>
               <span className="fecha">{gasto.fecha}</span>
             </div>
-            <div className="monto">- {gasto.monto.toFixed(2)}$</div>
+            <div className="monto">
+              - ${gasto.monto.toLocaleString('es-CL', { minimumFractionDigits: 0 })}
+            </div>
           </div>
         ))}
       </div>
