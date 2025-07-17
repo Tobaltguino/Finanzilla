@@ -27,3 +27,8 @@ class Gasto(models.Model):
     monto = models.DecimalField(max_digits=10, decimal_places=2)
     categoria = models.ForeignKey(Categoria, on_delete=models.CASCADE)
 
+class Note(models.Model):
+    description = models.CharField(max_length=300)
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='note')
+
+

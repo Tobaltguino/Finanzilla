@@ -9,42 +9,21 @@ import {
 } from 'react-icons/md';
 import '../styles/Login.css';
 
+import { login } from '../endpoints/api';
+import { useAuth } from '../context/useAuth';
 
 const Login = () => {
+  const [username, setUsername] = useState('')
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [emailError, setEmailError] = useState('');
   const [passwordError, setPasswordError] = useState(''); 
   const navigate = useNavigate();
-
-  // ✅ Login con Google
-  useEffect(() => {
-    /* global google */
-    if (window.google) {
-      window.google.accounts.id.initialize({
-        client_id: '701138400803-dj44aq2cdko46ji8icng62qjued10f0h.apps.googleusercontent.com', // 👈 pon aquí tu client ID real
-        callback: handleCredentialResponse,
-      });
-
-      window.google.accounts.id.renderButton(
-        document.getElementById('googleSignInDiv'),
-        {
-          theme: 'outline',
-          size: 'large',
-          width: '100%',
-        }
-      );
-    }
-  }, []);
-
-  const handleCredentialResponse = (response) => {
-    console.log("Token JWT de Google:", response.credential);
-    // Puedes enviar este token al backend para validación
-    navigate('/transacciones'); // redirige tras login exitoso
-  };
+  const { login_user } = useAuth();
 
   const handleSubmit = (e) => {
+    /*
     e.preventDefault();
 
     // Limpiar errores
@@ -79,7 +58,13 @@ const Login = () => {
     } else {
       console.log('❌ Credenciales inválidas');
     }
+    */
   };
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    login_user(username, password);
+  }
 
   return (
     <div className="login-page">
@@ -87,13 +72,14 @@ const Login = () => {
         <h2>Iniciar Sesión</h2>
         <form onSubmit={handleSubmit}>
           <div className="input-group">
-            <label>Email</label>
+            
+            <label>Username</label>
             <div className="input-with-icon">
               <MdEmail className="input-icon" />
               <input
                 type="text"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
                 placeholder="tucorreo@ejemplo.com"
                 className={emailError ? 'error' : ''}
               />
@@ -135,7 +121,7 @@ const Login = () => {
             )}
           </div>
 
-          <button type="submit" className="submit-btn">
+          <button type="submit" className="submit-btn" onClick={handleLogin}>
             Entrar
           </button>
           <p className="signup-text">
@@ -143,10 +129,6 @@ const Login = () => {
           </p>
         </form>
 
-        {/* ✅ Botón de login con Google */}
-        <div style={{ marginTop: '20px' }}>
-          <div id="googleSignInDiv"></div>
-        </div>
       </div>
     </div>
   );

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   FaUtensils, FaCar, FaHome, FaSmile, FaChevronDown, FaPlus, FaTimes, FaMinus
 } from 'react-icons/fa';
@@ -6,6 +6,8 @@ import DatePicker from 'react-datepicker';
 import { es } from 'date-fns/locale';
 import 'react-datepicker/dist/react-datepicker.css';
 import '../../styles/Gastos.css';
+
+import { get_notes } from '../../endpoints/api';
 
 const categoriasDisponibles = [
   { nombre: 'Comida', icono: <FaUtensils /> },
@@ -69,6 +71,16 @@ function Gastos() {
     setMostrarModal(false);
   };
 
+    /* TUTORIAL - DESPUÉS SACAR DESPUÉS DE EXPLICAR */
+    const [notes, setNotes] = useState([])
+    useEffect(() => {
+      const fetchNotes = async () => {
+        const notes = await get_notes()
+        setNotes(notes)
+      }
+      fetchNotes();
+    }, [])
+
   return (
     <div className="gastos-layout">
       <div className="limite-info sticky-box">
@@ -82,6 +94,15 @@ function Gastos() {
           />
         </div>
         <h2>Presupuesto Mensual</h2>
+
+        {/* -------PRUEBA------- */}
+        <label>
+          {notes.map((note, index) => (
+            <div key={index}>{note.description}</div>
+          ))}
+        </label>
+        {/* ---------------------- */}
+
         <label className="limite-label">
           <strong>Límite:</strong>
           <div className="input-con-simbolo">

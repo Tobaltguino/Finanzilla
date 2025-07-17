@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import '../../styles/Transacciones.css';
 import {
   FaBars,
@@ -15,6 +15,9 @@ import Informes from './Informes';
 import Categorias from './Categorias';
 import Ajustes from './Ajustes';
 
+import { get_notes, logout } from '../../endpoints/api';
+import { useNavigate } from 'react-router-dom';
+
 function Transacciones() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState('gastos');
@@ -26,6 +29,18 @@ function Transacciones() {
     setActiveSection(section);
     closeMenu();
   };
+
+  /* TUTORIAL - DESPUÉS SACAR DESPUÉS DE EXPLICAR */
+  const nav = useNavigate()
+  const handleLogout = async () => {
+    const success = await logout();
+    if (success) {
+
+      nav('/login')
+
+    }
+  }
+
 
   // Simulación de nombre de usuario
   const usuario = "Cristóbal";
@@ -60,7 +75,7 @@ function Transacciones() {
           <li className={`menu-item ${activeSection === 'ajustes' ? 'active' : ''}`} onClick={() => handleSectionClick('ajustes')}>
             <FaCog /> <span>Ajustes</span>
           </li>
-          <li className="menu-item" onClick={() => alert("Cerrar sesión...")}>
+          <li className="menu-item" onClick={handleLogout}>
             <FaSignOutAlt /> <span>Cerrar Sesión</span>
           </li>
         </ul>
