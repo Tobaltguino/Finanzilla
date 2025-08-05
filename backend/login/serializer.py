@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Note, User
+from .models import Note, User, Gasto
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
@@ -20,3 +20,9 @@ class NoteSerializer(serializers.ModelSerializer):
     class Meta:
         model = Note
         fields = ["id", "description"]
+
+class GastoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Gasto
+        fields = ["id", "usuario", "nombre", "fecha", "monto", "categoria"]
+        depth = 1

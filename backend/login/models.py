@@ -16,6 +16,7 @@ class User(AbstractUser):
 class Categoria(models.Model):
     usuario = models.ForeignKey(User, on_delete=models.CASCADE)
     nombre = models.CharField(max_length=100)
+    name_icon = models.CharField(max_length=100, default="FaCar")
 
     #notificaciones_activadas = models.BooleanField(default=True)
     #categoria_favorita = models.CharField(max_length=100, blank=True, null=True)

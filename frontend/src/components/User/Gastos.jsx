@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import {
-  FaUtensils, FaCar, FaHome, FaSmile, FaChevronDown, FaPlus, FaTimes, FaMinus
+  FaUtensils, FaCar, FaHome, FaSmile, FaChevronDown, FaPlus, FaTimes, FaMinus, FaShoppingCart
 } from 'react-icons/fa';
 import DatePicker from 'react-datepicker';
 import { es } from 'date-fns/locale';
 import 'react-datepicker/dist/react-datepicker.css';
 import '../../styles/Gastos.css';
 
-import { get_notes } from '../../endpoints/api';
+
+import { get_gastos, get_notes } from '../../endpoints/api';
 
 const categoriasDisponibles = [
   { nombre: 'Comida', icono: <FaUtensils /> },
@@ -15,6 +16,13 @@ const categoriasDisponibles = [
   { nombre: 'Renta', icono: <FaHome /> },
   { nombre: 'Ocio', icono: <FaSmile /> },
 ];
+
+const iconos = {
+  "FaCar": <FaCar />,
+};
+
+console.log(iconos["FaCar"]);
+console.log(iconos.FaCar); 
 
 const CustomInput = React.forwardRef(({ value, onClick }, ref) => (
   <button className="custom-datepicker" onClick={onClick} ref={ref}>
@@ -75,7 +83,7 @@ function Gastos() {
     const [notes, setNotes] = useState([])
     useEffect(() => {
       const fetchNotes = async () => {
-        const notes = await get_notes()
+        const notes = await get_gastos()
         setNotes(notes)
       }
       fetchNotes();
@@ -95,13 +103,7 @@ function Gastos() {
         </div>
         <h2>Presupuesto Mensual</h2>
 
-        {/* -------PRUEBA------- */}
-        <label>
-          {notes.map((note, index) => (
-            <div key={index}>{note.description}</div>
-          ))}
-        </label>
-        {/* ---------------------- */}
+
 
         <label className="limite-label">
           <strong>Límite:</strong>
@@ -126,20 +128,40 @@ function Gastos() {
         </button>
       </div>
 
-      <div className="lista-gastos">    
+      <div className="lista-gastos">   
+        
+        {/* -------PRUEBA------- */}
+        <label>
+          {/*notes.map((note, index) => (
+            <div key={index}>{note.nombre} {note.fecha} {note.monto}</div>
+          ))*/}
+        </label>
+        {/* ---------------------- */}
+          
         <h3>Gastos recientes</h3>
-        {gastosOrdenados.map((gasto, idx) => (
-          <div className="gasto-item" key={idx}>
-            <div className="icono">{gasto.icono}</div>
+        {notes.map((note, idx) => (
+          <div className="gasto-item" key={note.id}>
+            <div className="icono">
+              
+  
+              {iconos[note.categoria.name_icon] || "???"}
+              
+            </div>
             <div className="info">
-              <span className="categoria">{gasto.categoria}</span>
-              <span className="fecha">{gasto.fecha}</span>
+              <span className="categoria">{}</span>
+              <span className="nombre">{note.nombre}</span>
+              <span className="fecha">{note.fecha}</span>
             </div>
             <div className="monto">
-              - ${gasto.monto.toLocaleString('es-CL', { minimumFractionDigits: 0 })}
+              - $
+              {Number(note.monto).toLocaleString("es-CL", {
+                minimumFractionDigits: 0,
+              })}
             </div>
           </div>
         ))}
+
+
       </div>
 
       {/* MODAL para agregar gasto */}

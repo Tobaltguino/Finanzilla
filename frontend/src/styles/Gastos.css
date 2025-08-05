@@ -1,5 +1,6 @@
 .gastos-layout {
   
+  
   flex-direction: column; /* apila verticalmente */
   gap: 1px;
   padding: 10px;
@@ -102,7 +103,7 @@
 }
 
 .icono {
-  font-size: 2px;
+  font-size: 2rem; 
   color: #27ae60;
   margin-right: 12px;
 }

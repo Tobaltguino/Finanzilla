@@ -7,6 +7,7 @@ const NOTES_URL = `${BASE_URL}notes/`
 const LOGOUT_URL = `${BASE_URL}logout/`
 const AUTH_URL = `${BASE_URL}authenticated/`
 const SIGNUP_URL = `${BASE_URL}signup/`
+const GASTO_URL = `${BASE_URL}gastos/`
 
 
 export const login = async (username, password) => {
@@ -37,6 +38,18 @@ export const get_notes = async () => {
         return response.data
     } catch (error) {
         return call_refresh(error, axios.get(NOTES_URL, { withCredentials: true }))
+    }
+
+}
+
+export const get_gastos = async () => {
+    try{
+        const response = await axios.get(GASTO_URL, 
+            { withCredentials: true }
+        )
+        return response.data
+    } catch (error) {
+        return call_refresh(error, axios.get(GASTO_URL, { withCredentials: true }))
     }
 
 }
