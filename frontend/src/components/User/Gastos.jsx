@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
-  FaUtensils, FaCar, FaHome, FaSmile, FaChevronDown, FaPlus, FaTimes, FaMinus, FaShoppingCart
+  FaUtensils, FaCar, FaHome, FaSmile, FaChevronDown, FaPlus, FaTimes, FaMinus, FaShoppingCart, FaCalendarAlt
 } from 'react-icons/fa';
 import DatePicker from 'react-datepicker';
 import { es } from 'date-fns/locale';
@@ -35,19 +35,19 @@ function Gastos() {
   const [gastos, setGastos] = useState([
     { categoria: 'Comida', monto: 5000, fecha: '2025-07-01', icono: <FaUtensils /> },
     { categoria: 'Transporte', monto: 2500, fecha: '2025-07-02', icono: <FaCar /> },
-    { categoria: 'Renta', monto: 4000, fecha: '2025-06-30', icono: <FaHome /> },
     { categoria: 'Ocio', monto: 7000, fecha: '2025-07-02', icono: <FaSmile /> },
     { categoria: 'Comida', monto: 5000, fecha: '2025-07-01', icono: <FaUtensils /> },
    
     ]);
 
+  
   const [mostrarModal, setMostrarModal] = useState(false);
   const [categoriaSeleccionada, setCategoriaSeleccionada] = useState(null);
   const [monto, setMonto] = useState('');
 
   const mes = (fechaSeleccionada.getMonth() + 1).toString().padStart(2, '0');
   const anio = fechaSeleccionada.getFullYear().toString();
-  const [limiteUsuario, setLimiteUsuario] = useState(1000.0);
+  const [limiteUsuario, setLimiteUsuario] = useState(0);
 
 
   const gastosFiltrados = gastos.filter((g) => {
@@ -59,13 +59,17 @@ function Gastos() {
   const gastosOrdenados = [...gastosFiltrados].sort(
     (a, b) => new Date(b.fecha) - new Date(a.fecha)
   );
-
-  const handleGuardarGasto = () => {
-    if (!categoriaSeleccionada || !monto) {
-      alert('Completa todos los campos');
-      return;
-    }
-
+  const handleEliminarGasto = (index) => {
+    const nuevosGastos = [...gastos];
+    nuevosGastos.splice(index, 1); // elimina el gasto en la posición indicada
+    setGastos(nuevosGastos);
+    };
+    const handleGuardarGasto = () => {
+      if (!categoriaSeleccionada || !monto) {
+        alert('Completa todos los campos');
+        return;
+      }
+  
     const nuevoGasto = {
       categoria: categoriaSeleccionada.nombre,
       icono: categoriaSeleccionada.icono,
@@ -123,8 +127,8 @@ function Gastos() {
         <button className="agregar-btn" onClick={() => setMostrarModal(true)}>
           <FaPlus /> Agregar Gasto
         </button>
-        <button className="agregar-btn-eliminar" onClick={() => setMostrarModal(true)}>
-          <FaMinus /> Eliminar Gasto
+        <button className="cartolas-btn" onClick={() => setFechaSeleccionada(new Date('2025-06-01'))}>
+          <FaCalendarAlt /> Ver Cartolas
         </button>
       </div>
 
@@ -158,6 +162,11 @@ function Gastos() {
                 minimumFractionDigits: 0,
               })}
             </div>
+
+              <div className="monto-con-boton">
+              <button className="eliminar-btn" onClick={() => handleEliminarGasto(idx)}>vasurita</button>
+            </div>
+
           </div>
         ))}
 
@@ -190,7 +199,7 @@ function Gastos() {
             <label>Monto:</label>
             <input
               type="number"
-              placeholder="Ej: 100.00"
+              placeholder="Ej: 10.000"
               value={monto}
               onChange={(e) => setMonto(e.target.value)}
             />

@@ -73,19 +73,16 @@
 }
 
 .lista-gastos {
-  flex: 1; /* Ocupa resto de espacio */
+  flex: 1;
   min-width: 300px;
   background: white;
   border-radius: 12px;
   padding: 20px;
   box-shadow: 0 0 10px rgb(0 0 0 / 0.1);
-  max-height: none;
-  overflow-y: visible;
-}
-
-.lista-gastos h3 {
-  margin-bottom: 10px;
-  color: #2c3e50;
+  
+  /* ✅ Aquí agregas el alto y el scroll */
+  max-height: 400px; /* por ejemplo 400px de alto */
+  overflow-y: auto; /* muestra scroll cuando se llena */
 }
 
 /* Resto de estilos igual */
@@ -124,9 +121,10 @@
 }
 
 .monto {
+  
   font-weight: bold;
   color: #e74c3c;
-  font-size: 1rem;
+  font-size: 1.3rem;
 }
 
 .custom-datepicker {
@@ -186,7 +184,7 @@
   transition: background-color 0.3s ease;
 }
 
-.agregar-btn-eliminar {
+.cartolas-btn {
   margin: 5px auto 0;
   background-color: #771818;
   color: white;
@@ -232,14 +230,27 @@
 }
 
 .modal-close {
+  background-color: #de1111;
   position: absolute;
   top: 10px;
   right: 10px;
-  background: transparent;
   border: none;
-  font-size: 1.2rem;
+  color: white; /* color del ícono o texto */
+  font-size: 1.5rem;
   cursor: pointer;
+  border-radius: 50%;
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 3px 6px rgba(0,0,0,0.2);
+  transition: background-color 0.3s, transform 0.2s;
 }
+
+.modal-close:hover {
+  background-color: #c02d2b;
+  transform: scale(1.1);
+} 
 
 .icon-grid {
   display: flex;
@@ -297,4 +308,31 @@
 .input-limite::-webkit-outer-spin-button {
   -webkit-appearance: none;
   margin: 0;
+}
+
+.monto-con-boton {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.eliminar-btn {
+  background-color: transparent;
+  border: none;
+  color: #e74c3c;
+  cursor: pointer;
+  font-size: 1.3rem;
+  margin-left: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+}
+
+.eliminar-btn:hover {
+  background-color: #ffe6e6;
+  color: #c0392b;
+  transform: scale(1.1);
 }
