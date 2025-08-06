@@ -28,6 +28,14 @@ class Gasto(models.Model):
     monto = models.DecimalField(max_digits=10, decimal_places=2)
     categoria = models.ForeignKey(Categoria, on_delete=models.CASCADE)
 
+class LimiteMensual(models.Model):
+    usuario = models.ForeignKey(User, on_delete=models.CASCADE)
+    mes = models.DateField()  # Puedes usar solo la fecha del primer día del mes
+    limite = models.DecimalField(max_digits=10, decimal_places=2)
+
+    class Meta:
+        unique_together = ('usuario', 'mes')  # Evita duplicar límites para el mismo mes
+
 class Note(models.Model):
     description = models.CharField(max_length=300)
     owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='note')

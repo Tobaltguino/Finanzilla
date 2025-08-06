@@ -1,8 +1,9 @@
 from django.contrib import admin
-from .models import User, Categoria, Gasto, Note
+from .models import User, Categoria, Gasto, Note, LimiteMensual
 
 # Register your models here.
 admin.site.register(User)
 admin.site.register(Categoria)
 admin.site.register(Gasto)
 admin.site.register(Note)
+admin.site.register(LimiteMensual)

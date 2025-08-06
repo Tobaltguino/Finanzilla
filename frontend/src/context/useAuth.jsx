@@ -29,7 +29,7 @@ export const AuthProvider = ({children}) => {
         const success = await login(username, password);
         if (success) {
             setIsAuthenticated(true)
-            nav('/transacciones')
+            nav('/transacciones') //Para obtener el username (mostrarlo arriba derecha), simplemente le pasamos la variable
         }
     }
 
@@ -50,7 +50,7 @@ export const AuthProvider = ({children}) => {
     useEffect(() => {
         get_authenticated();
     }, [window.location.pathname])
-
+    
     return (
         <AuthContext.Provider value={{isAuthenticated, loading, login_user, register_user}}>
             {children}

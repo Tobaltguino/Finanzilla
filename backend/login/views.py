@@ -1,10 +1,12 @@
 from django.shortcuts import render
-from .models import User, Note, Gasto
-from .serializer import NoteSerializer, UserRegistrationSerializer, GastoSerializer
+from .models import User, Note, Gasto, LimiteMensual
+from .serializer import NoteSerializer, UserRegistrationSerializer, GastoSerializer, LimiteMensualSerializer, AgregarGastoSerializer
 
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
+
+from datetime import date
 
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
@@ -103,6 +105,18 @@ def register(request):
         return Response(serializer.data)
     return Response(serializer.error)
 
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def agregar_gasto(request):
+
+
+    serializer = AgregarGastoSerializer(data=request.data)
+
+    if serializer.is_valid():
+        serializer.save(usuario=request.user)  #admin = 6 
+        return Response(serializer.data)
+    return Response(serializer.errors, status=400)
+
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
@@ -112,10 +126,34 @@ def get_notes(request):
     serializer = NoteSerializer(notes, many=True)
     return Response(serializer.data)
 
+
+
+
+
+
+
+
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_gastos(request):
-    user = request.user
+    user = request.user 
     gastos = Gasto.objects.filter(usuario=user)
     serializer = GastoSerializer(gastos, many=True)
+    return Response(serializer.data)
+
+
+
+
+
+
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_limite(request):
+    hoy = date.today()
+
+    user = request.user
+    limite = LimiteMensual.objects.filter(usuario=user, mes__month=hoy.month, mes__year=hoy.year)
+    serializer = LimiteMensualSerializer(limite, many=True)
     return Response(serializer.data)

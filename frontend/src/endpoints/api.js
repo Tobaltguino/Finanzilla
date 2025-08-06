@@ -8,6 +8,8 @@ const LOGOUT_URL = `${BASE_URL}logout/`
 const AUTH_URL = `${BASE_URL}authenticated/`
 const SIGNUP_URL = `${BASE_URL}signup/`
 const GASTO_URL = `${BASE_URL}gastos/`
+const LIMITE_MENSUAL_URL = `${BASE_URL}limite/`
+const AGREGAR_GASTO = `${BASE_URL}agregar_gasto/`
 
 
 export const login = async (username, password) => {
@@ -54,6 +56,18 @@ export const get_gastos = async () => {
 
 }
 
+export const get_limite = async () => {
+    try{
+        const response = await axios.get(LIMITE_MENSUAL_URL, 
+            { withCredentials: true }
+        )
+        return response.data
+    } catch (error) {
+        return call_refresh(error, axios.get(LIMITE_MENSUAL_URL, { withCredentials: true }))
+    }
+
+}
+
 const call_refresh = async (error, func) => {
     if (error.response && error.response.status === 401) {
         const tokenRefreshed = await refresh_token();
@@ -91,6 +105,15 @@ export const is_authenticated = async () => {
 export const register = async (username, email, password) => {
     const response = axios.post(SIGNUP_URL, 
         {username:username, email:email, password:password}, 
+        { withCredentials: true }
+    )
+    return response.data
+}
+
+
+export const agregar_gasto = async (nombre, fecha, monto, categoria) => {
+    const response = await axios.post(AGREGAR_GASTO, 
+        {nombre:nombre, fecha:fecha, monto:monto, categoria:categoria}, 
         { withCredentials: true }
     )
     return response.data
