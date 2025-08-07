@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import {
-  FaUtensils, FaCar, FaHome, FaSmile, FaChevronDown, FaPlus, FaTimes, FaMinus, FaShoppingCart, FaCalendarAlt, FaRegTrashAlt
+  FaUtensils, FaCar, FaHome, FaSmile, FaChevronDown, FaPlus, FaTimes, FaMinus, FaShoppingCart, FaCalendarAlt, FaRegTrashAlt,FaCheckSquare
 } from 'react-icons/fa';
 import DatePicker from 'react-datepicker';
 import { es } from 'date-fns/locale';
@@ -8,7 +8,7 @@ import 'react-datepicker/dist/react-datepicker.css';
 import '../../styles/Gastos.css';
 
 
-import { get_gastos, get_limite, get_notes, agregar_gasto } from '../../endpoints/api';
+import { get_gastos, get_limite, get_notes, agregar_gasto, set_limite, eliminar_gasto } from '../../endpoints/api';
 
 const categoriasDisponibles = [
   { id: 1, nombre: 'Comida', icono: <FaCar /> },
@@ -68,10 +68,14 @@ function Gastos() {
   const gastosOrdenados = [...gastosFiltrados].sort(
     (a, b) => new Date(b.fecha) - new Date(a.fecha)
   );
-  const handleEliminarGasto = (index) => {
-    const nuevosGastos = [...gastos];
-    nuevosGastos.splice(index, 1); // elimina el gasto en la posición indicada
-    setGastos(nuevosGastos);
+  const handleEliminarGasto = async (id) => {
+      try {
+        await eliminar_gasto(id);
+        const gastosActualizados = await get_gastos();
+        setNotes(gastosActualizados);
+      } catch (error) {
+        console.error("Error al eliminar el gasto:", error);
+      }
     };
 
     /** ------------------------------------------------------------------------------------------ */
@@ -96,6 +100,22 @@ function Gastos() {
       }
       fetchLimite();
     }, [])
+    
+
+    const guardarLimite = async () => {
+      try {
+        await set_limite(limiteUsuario);
+        alert("Límite guardado correctamente");
+
+        const nuevoLimite = await get_limite();
+        setLimite(nuevoLimite);
+      } catch (error) {
+        alert("Error al guardar el límite");
+        console.error(error);
+      }
+    };
+
+    
 
     /**Transformarlo a un array de JavaS */
     const limiteActual = limite.length > 0 ? limite[0] : null;
@@ -112,6 +132,12 @@ function Gastos() {
     console.log(restante)
     setTotalRestante(restante);
     }, [totalGastado, limiteActual]);
+
+    useEffect(() => {
+      if (limiteActual?.limite) {
+        setLimiteUsuario(limiteActual.limite);
+      }
+    }, [limiteActual]);
 
     /** ------------------------------------------------------------------------------------------ */
 
@@ -168,13 +194,21 @@ function Gastos() {
 
         <label className="limite-label">
           <strong>Límite:</strong>
-          <div className="input-con-simbolo">
+          <div className="input-limite-wrapper">
             <span className="simbolo">$</span>
             <input
               type="number"
-              value={Number(limiteActual?.limite) || 0} readOnly
+              value={limiteUsuario}
+              onChange={(e) => setLimiteUsuario(e.target.value)}
               className="input-limite"
             />
+            <button
+              onClick={guardarLimite}
+              className="boton-limite-check"
+              title="Guardar límite"
+            >
+              <FaCheckSquare />
+            </button>
           </div>
         </label>
         <p><strong>Gastado:</strong> ${totalGastado}</p>
@@ -183,20 +217,18 @@ function Gastos() {
         <button className="agregar-btn" onClick={() => setMostrarModal(true)}>
           <FaPlus /> Agregar Gasto
         </button>
-        <button className="cartolas-btn" onClick={() => setFechaSeleccionada(new Date('2025-06-01'))}>
-          <FaCalendarAlt /> Ver Cartolas
-        </button>
       </div>
 
       <div className="lista-gastos">   
-        
-        {/* -------PRUEBA------- */}
-        <label>
-          {limite.map((lim, index) => (
-            <div key={index}>{lim.mes}</div>
-          ))}
-        </label>
-        {/* ---------------------- */}
+      
+        {/* 
+          <label>
+            {limite.map((lim, index) => (
+              <div key={index}>{lim.mes}</div>
+            ))}
+          </label>
+          */}
+     
           
         <h3>Gastos recientes</h3>
         {notes.map((note, idx) => (
@@ -220,7 +252,7 @@ function Gastos() {
             </div>
 
               <div className="monto-con-boton">
-              <button className="eliminar-btn" onClick={() => handleEliminarGasto(idx)}><FaRegTrashAlt /></button>
+              <button className="eliminar-btn" onClick={() => handleEliminarGasto(note.id)}><FaRegTrashAlt /></button>
             </div>
 
           </div>

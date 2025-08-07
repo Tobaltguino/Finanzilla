@@ -10,6 +10,9 @@ const SIGNUP_URL = `${BASE_URL}signup/`
 const GASTO_URL = `${BASE_URL}gastos/`
 const LIMITE_MENSUAL_URL = `${BASE_URL}limite/`
 const AGREGAR_GASTO = `${BASE_URL}agregar_gasto/`
+const USUARIO_URL = `${BASE_URL}usuario/`;
+export const ELIMINAR_GASTO = `${BASE_URL}eliminar_gasto/`; // correcto   
+
 
 
 export const login = async (username, password) => {
@@ -117,4 +120,29 @@ export const agregar_gasto = async (nombre, fecha, monto, categoria) => {
         { withCredentials: true }
     )
     return response.data
-}
+};
+
+
+
+export const get_usuario = async () => {
+  const response = await axios.get(USUARIO_URL, { withCredentials: true });
+  return response.data;
+};
+
+//Guarda el limite mensual 
+const SET_LIMITE_URL = `${BASE_URL}set_limite/`;
+
+export const set_limite = async (nuevoLimite) => {
+  const response = await axios.post(SET_LIMITE_URL,
+    { limite: nuevoLimite },
+    { withCredentials: true }
+  );
+  return response.data;
+};
+
+export const eliminar_gasto = async (id) => {
+  const response = await axios.delete(`${ELIMINAR_GASTO}${id}/  `, {
+    withCredentials: true,
+  });
+  return response.data;
+};

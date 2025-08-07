@@ -132,7 +132,7 @@ def get_notes(request):
 
 
 
-
+#Obtiene el gasto del usuario
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_gastos(request):
@@ -141,13 +141,7 @@ def get_gastos(request):
     serializer = GastoSerializer(gastos, many=True)
     return Response(serializer.data)
 
-
-
-
-
-
-
-
+# Obtiene el limite mensual del usuario
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_limite(request):
@@ -157,3 +151,41 @@ def get_limite(request):
     limite = LimiteMensual.objects.filter(usuario=user, mes__month=hoy.month, mes__year=hoy.year)
     serializer = LimiteMensualSerializer(limite, many=True)
     return Response(serializer.data)
+
+# Obtiene el "usuario" del login
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_usuario_actual(request):
+    user = request.user
+    return Response({
+        "username": user.username,
+        "email": user.email,
+    })
+
+## Guarda el limite mensual
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def set_limite(request):
+    user = request.user
+    data = request.data
+
+    # actualiza o crea el límite de ese mes para ese usuario
+    limite, created = LimiteMensual.objects.update_or_create(
+        usuario=user,
+        mes=date.today().replace(day=1),  # se guarda por mes actual
+        defaults={"limite": data.get("limite")}
+    )
+
+    return Response({"success": True, "limite": limite.limite})
+
+
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+def eliminar_gasto(request, gasto_id):
+    try:
+        gasto = Gasto.objects.get(id=gasto_id, usuario=request.user)
+        gasto.delete()
+        return Response({'success': True})
+    except Gasto.DoesNotExist:
+        return Response({'error': 'Gasto no encontrado'}, status=404)

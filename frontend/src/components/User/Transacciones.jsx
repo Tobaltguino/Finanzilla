@@ -16,6 +16,7 @@ import Categorias from './Categorias';
 import Ajustes from './Ajustes';
 
 import { get_notes, logout } from '../../endpoints/api';
+import { get_usuario } from "../../endpoints/api";
 import { useNavigate } from 'react-router-dom';
 
 function Transacciones() {
@@ -43,7 +44,19 @@ function Transacciones() {
 
 
   // Simulación de nombre de usuario
-  const usuario = "Cristóbal";
+ 
+
+  const [usuario, setUsuario] = useState(null);
+
+              useEffect(() => {
+                const cargarUsuario = async () => {
+                  const datos = await get_usuario(); // función que harás en api.js
+                  setUsuario(datos.username);
+                };
+
+                cargarUsuario();
+              }, []); 
+
 
   return (
     <div className="transacciones-layout">
