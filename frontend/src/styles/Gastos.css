@@ -1,16 +1,16 @@
 .gastos-layout {
-  
-  
-  flex-direction: column; /* apila verticalmente */
-  gap: 1px;
-  padding: 10px;
-  align-items: center;
-  max-width: 900px;
-  max-height: 900px;
-  margin: 20px;
-  height: 900px;
-  width: 800px;
+  display: flex;
+  flex-direction: row;
+  gap: 100px;              
+  justify-content: center;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
 }
+
+
 
 .limite-info {
   background-color: #eafaf1;
@@ -21,8 +21,7 @@
   text-align: center;
   font-size: 1.2rem;
   box-shadow: 0 5px 15px rgba(39, 174, 96, 0.3);
-
-  
+  width: 400px;
   height: fit-content;
   max-height: calc(100vh - 40px);
 }
@@ -165,7 +164,6 @@
 }
 
 .agregar-btn {
-  margin: 5px auto 0;
   background-color: #27ae60;
   color: white;
   border: none;
@@ -174,15 +172,16 @@
   font-weight: 700;
   cursor: pointer;
   display: flex;
-  margin-top: 10px;
-  margin-left: 250px;
-
+  align-items: center;
+  justify-content: center;
   gap: 10px;
-  font-size: 1.rem;
-  width: fit-content;
+  font-size: 1rem;
+  width: 100%; /* o fit-content si prefieres */
   box-shadow: 0 5px 15px rgba(39, 174, 96, 0.5);
   transition: background-color 0.3s ease;
+  margin: 20px auto 0 auto; /* ✅ Esto lo centra horizontalmente */
 }
+
 
 .cartolas-btn {
   margin: 5px auto 0;
@@ -368,4 +367,24 @@
   font-size: 1.2rem;
   font-weight: bold;
   color: #2c3e50;
+}
+
+.boton-editar-limite,
+.boton-limite-cancelar {
+  background-color: transparent;
+  border: none;
+  padding: 4px;
+  width: 32px;
+  height: 32px;
+  cursor: pointer;
+  font-size: 1.3rem;
+  color: #2980b9; /* azul para editar y cancelar */
+  transition: transform 0.2s ease;
+  margin-left: 5px;
+}
+
+.boton-editar-limite:hover,
+.boton-limite-cancelar:hover {
+  transform: scale(1.2);
+  color: #1c5980;
 }

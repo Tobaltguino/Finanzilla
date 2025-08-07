@@ -1,27 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import {
-  FaUtensils, FaCar, FaHome, FaSmile, FaChevronDown, FaPlus, FaTimes, FaMinus, FaShoppingCart, FaCalendarAlt, FaRegTrashAlt,FaCheckSquare
+  FaUtensils, FaCar, FaHome, FaSmile,
+  FaChevronDown, FaPlus, FaTimes, FaRegTrashAlt,
+  FaCheckSquare, FaPen
 } from 'react-icons/fa';
 import DatePicker from 'react-datepicker';
 import { es } from 'date-fns/locale';
 import 'react-datepicker/dist/react-datepicker.css';
 import '../../styles/Gastos.css';
 
+import { get_gastos, get_limite, agregar_gasto, set_limite, eliminar_gasto, get_categorias } from '../../endpoints/api';
 
-import { get_gastos, get_limite, get_notes, agregar_gasto, set_limite, eliminar_gasto, get_categorias } from '../../endpoints/api';
-
-const categoriasDisponibles = [
-  { id: 1, nombre: 'Comida', icono: <FaCar /> },
-  { id: 2, nombre: 'Transporte', icono: <FaUtensils /> },
-  { id: 3, nombre: 'Renta', icono: <FaHome /> },
-  { id: 4, nombre: 'lol', icono: <FaSmile /> },
-];
-
-/** ------------------------------------------------------------------------------------------ */
 const iconos = {
-  "FaCar": <FaCar />,
+  FaCar: <FaCar />,
+  FaUtensils: <FaUtensils />,
+  FaHome: <FaHome />,
+  FaSmile: <FaSmile />,
 };
-/** ------------------------------------------------------------------------------------------ */
 
 const CustomInput = React.forwardRef(({ value, onClick }, ref) => (
   <button className="custom-datepicker" onClick={onClick} ref={ref}>
@@ -31,163 +26,135 @@ const CustomInput = React.forwardRef(({ value, onClick }, ref) => (
 
 function Gastos() {
   const [fechaSeleccionada, setFechaSeleccionada] = useState(new Date());
-  const [gastos, setGastos] = useState([
-    { categoria: 'Comida', monto: 5000, fecha: '2025-07-01', icono: <FaUtensils /> },
-    { categoria: 'Transporte', monto: 2500, fecha: '2025-07-02', icono: <FaCar /> },
-    { categoria: 'Ocio', monto: 7000, fecha: '2025-07-02', icono: <FaSmile /> },
-    { categoria: 'Comida', monto: 5000, fecha: '2025-07-01', icono: <FaUtensils /> },
-   
-    ]);
 
-  /** ------------------------------------------------------------------------------------------ */
-  /** Variables agregar nuevo gasto */
+  /** Gastos traídos de base de datos */
+  const [notes, setNotes] = useState([]);
+
+  /** Límite y estado usuario */
+  const [limite, setLimite] = useState([]);
+  const [limiteUsuario, setLimiteUsuario] = useState(0);
+  const [editandoLimite, setEditandoLimite] = useState(false);
+  const [limiteOriginal, setLimiteOriginal] = useState(0); // Guardamos el valor original para restaurar
+
+  /** Categorías */
+  const [categorias, setCategorias] = useState([]);
+
+  /** Modal y nuevos gastos */
   const [mostrarModal, setMostrarModal] = useState(false);
   const [categoriaSeleccionada, setCategoriaSeleccionada] = useState(null);
   const [nombre, setNombre] = useState('');
   const [monto, setMonto] = useState('');
-  /** ------------------------------------------------------------------------------------------ */
 
-  const mes = (fechaSeleccionada.getMonth() + 1).toString().padStart(2, '0');
-  const anio = fechaSeleccionada.getFullYear().toString();
-  const [limiteUsuario, setLimiteUsuario] = useState(0);
-
-
-  const gastosFiltrados = gastos.filter((g) => {
-    const [año, mesStr] = g.fecha.split('-');
-    return mesStr === mes && año === anio;
-  });
-
-  /** ------------------------------------------------------------------------------------------ */
-  
-  /** Variables importantes */
+  /** Totales */
   const [totalGastado, setTotalGastado] = useState(0);
   const [totalRestante, setTotalRestante] = useState(0);
 
-  /** ------------------------------------------------------------------------------------------ */
-
-  const gastosOrdenados = [...gastosFiltrados].sort(
-    (a, b) => new Date(b.fecha) - new Date(a.fecha)
-  );
-  const handleEliminarGasto = async (id) => {
-      try {
-        await eliminar_gasto(id);
-        const gastosActualizados = await get_gastos();
-        setNotes(gastosActualizados);
-      } catch (error) {
-        console.error("Error al eliminar el gasto:", error);
-      }
+  /** Fetch gastos desde la base */
+  useEffect(() => {
+    const fetchNotes = async () => {
+      const notes = await get_gastos();
+      setNotes(notes);
     };
+    fetchNotes();
+  }, []);
 
-    /** ------------------------------------------------------------------------------------------ */
-
-    /* Obtener en un Array, todos los gastos */
-    const [notes, setNotes] = useState([]) // [{id:1, nombre:jeany,...}, {id:2, nombre:bastian,...}]
-    useEffect(() => {
-      const fetchNotes = async () => {
-        const notes = await get_gastos()
-        setNotes(notes)
-      }
-      fetchNotes();
-    }, [])
-  
-
-    /** Obtener el limite mensual y colocarlo en una variable */
-    const [limite, setLimite] = useState([]);
-    useEffect(() => {
-      const fetchLimite = async () => {
-        const data = await get_limite()
-        setLimite(data)
-      }
-      fetchLimite();
-    }, [])
-    
-
-    const guardarLimite = async () => {
-      try {
-        await set_limite(limiteUsuario);
-        alert("Límite guardado correctamente");
-
-        const nuevoLimite = await get_limite();
-        setLimite(nuevoLimite);
-      } catch (error) {
-        alert("Error al guardar el límite");
-        console.error(error);
-      }
+  /** Fetch límite */
+  useEffect(() => {
+    const fetchLimite = async () => {
+      const data = await get_limite();
+      setLimite(data);
     };
+    fetchLimite();
+  }, []);
 
-    
+  /** Fetch categorías */
+  useEffect(() => {
+    const fetchCategorias = async () => {
+      const cat = await get_categorias();
+      setCategorias(cat);
+    };
+    fetchCategorias();
+  }, []);
 
-    /**Transformarlo a un array de JavaS */
+  /** Actualizar limiteUsuario cuando cambie limite */
+  useEffect(() => {
     const limiteActual = limite.length > 0 ? limite[0] : null;
+    if (limiteActual?.limite) {
+      setLimiteUsuario(limiteActual.limite);
+    }
+  }, [limite]);
 
-    /** Calcular el total gastado */
-    useEffect(() => {
+  /** Calcular total gastado cuando notes cambian */
+  useEffect(() => {
     const total = notes.reduce((acc, note) => acc + Number(note.monto), 0);
     setTotalGastado(total);
-    }, [notes]);
+  }, [notes]);
 
-    /** Calcular el dinero restante, si totalGastado y limiteActual, cambian, se vuelve a ejecutar esta funcion */
-    useEffect(() => {
+  /** Calcular dinero restante */
+  useEffect(() => {
+    const limiteActual = limite.length > 0 ? limite[0] : null;
     const restante = Number(limiteActual?.limite || 0) - totalGastado;
-    console.log(restante)
     setTotalRestante(restante);
-    }, [totalGastado, limiteActual]);
+  }, [totalGastado, limite]);
 
-    useEffect(() => {
-      if (limiteActual?.limite) {
-        setLimiteUsuario(limiteActual.limite);
-      }
-    }, [limiteActual]);
+  /** Guardar límite */
+  const guardarLimite = async () => {
+    try {
+      await set_limite(limiteUsuario);
+      alert("Límite guardado correctamente");
+      const nuevoLimite = await get_limite();
+      setLimite(nuevoLimite);
+    } catch (error) {
+      alert("Error al guardar el límite");
+      console.error(error);
+    }
+  };
 
-    /** Traer las categorias de la base de datos y colocarlo en una variable */
-    const [categorias, setCategorias] = useState([]) // [{id:1, nombre:categoria, usuario_id:1, name_icon:"FaCar"}, {id:2, nombre:bastian,...}]
-    useEffect(() => {
-      const fetchCategorias = async () => {
-        const cat = await get_categorias()
-        setCategorias(cat)
-      }
-      fetchCategorias();
-    }, [])
-    console.log(categorias)
+  /** Eliminar gasto */
+  const handleEliminarGasto = async (id) => {
+    try {
+      await eliminar_gasto(id);
+      const gastosActualizados = await get_gastos();
+      setNotes(gastosActualizados);
+    } catch (error) {
+      console.error("Error al eliminar el gasto:", error);
+    }
+  };
 
+  /** Guardar nuevo gasto */
+  const handleGuardarGasto = async (e) => {
+    e.preventDefault();
+    if (!categoriaSeleccionada || !monto) {
+      alert('Completa todos los campos');
+      return;
+    }
 
+    const fechaActual = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
 
-    /** ------------------------------------------------------------------------------------------ */
+    try {
+      await agregar_gasto(nombre, fechaActual, monto, Number(categoriaSeleccionada.id));
+      const gastosActualizados = await get_gastos();
+      setNotes(gastosActualizados);
+    } catch (error) {
+      console.error("Error al agregar gasto:", error);
+    }
 
-    /** Funcion para guardar el gasto en base de datos */
-    const handleGuardarGasto = async (e) => {
-      
-      e.preventDefault();
-      if (!categoriaSeleccionada || !monto) {
-        alert('Completa todos los campos');
-        return;
-      }
+    setCategoriaSeleccionada(null);
+    setNombre('');
+    setMonto('');
+    setMostrarModal(false);
+  };
 
-      const fechaActual = new Date().toISOString().split("T")[0]; //YYYY-MM-DD
+  /** Filtrar gastos por día, mes y año según fechaSeleccionada */
+  const diaSeleccionado = fechaSeleccionada.getDate().toString().padStart(2, '0');
+  const mesSeleccionado = (fechaSeleccionada.getMonth() + 1).toString().padStart(2, '0');
+  const anioSeleccionado = fechaSeleccionada.getFullYear().toString();
 
-  
-
-      try {
-        const response = await agregar_gasto(nombre, fechaActual, monto, Number(categoriaSeleccionada.id)); // pan, 2025-08, 10.000, 1 (FaCar)
-
-        // hacer if si hay un error
-        // Ejecutar la funcion get_gastos() y asignarla en Notes (lista de gastos), por lo tanto se vuelve a ejecutar el return
-        // Mostrando de nuevo, la nueva base de datos
-        const gastosActualizados = await get_gastos();
-        setNotes(gastosActualizados); //Notes = Gastos
-
-      } catch (error) {
-        console.error("Error al agregar gasto:", error);
-      }
-
-
-      setCategoriaSeleccionada(null);
-      setNombre('');
-      setMonto('');
-      setMostrarModal(false);
-    };
-
-    /** ------------------------------------------------------------------------------------------ */
+  const gastosFiltradosPorFecha = notes.filter(note => {
+    if (!note.fecha) return false;
+    const [anio, mes, dia] = note.fecha.split('-');
+    return anio === anioSeleccionado && mes === mesSeleccionado && dia === diaSeleccionado;
+  });
 
   return (
     <div className="gastos-layout">
@@ -196,64 +163,83 @@ function Gastos() {
           <DatePicker
             selected={fechaSeleccionada}
             onChange={(date) => setFechaSeleccionada(date)}
-            dateFormat="dd 'de' MMMM, yyyy" // ← muestra día, mes y año
+            dateFormat="dd 'de' MMMM, yyyy"
             locale={es}
             customInput={<CustomInput />}
           />
         </div>
+
         <h2>Presupuesto Mensual</h2>
-
-
 
         <label className="limite-label">
           <strong>Límite:</strong>
           <div className="input-limite-wrapper">
-            <span className="simbolo">$</span>
-            <input
-              type="number"
-              value={limiteUsuario}
-              onChange={(e) => setLimiteUsuario(e.target.value)}
-              className="input-limite"
-            />
-            <button
-              onClick={guardarLimite}
-              className="boton-limite-check"
-              title="Guardar límite"
-            >
-              <FaCheckSquare />
-            </button>
+            {!editandoLimite ? (
+              <>
+                <span className="limite-valor">${limiteUsuario.toLocaleString("es-CL")}</span>
+                <button
+                  className="boton-editar-limite"
+                  title="Editar límite"
+                  onClick={() => {
+                    setLimiteOriginal(limiteUsuario); // Guardar valor actual antes de editar
+                    setEditandoLimite(true);
+                  }}
+                >
+                  <FaPen />
+                </button>
+              </>
+            ) : (
+              <>
+                <span className="simbolo">$</span>
+                <input
+                  type="number"
+                  value={limiteUsuario}
+                  onChange={(e) => setLimiteUsuario(e.target.value)}
+                  className="input-limite"
+                />
+                <button
+                  onClick={() => {
+                    guardarLimite();
+                    setEditandoLimite(false);
+                  }}
+                  className="boton-limite-check"
+                  title="Guardar límite"
+                >
+                  <FaCheckSquare />
+                </button>
+                <button
+                  onClick={() => {
+                    setLimiteUsuario(limiteOriginal); // Restaurar valor original al cancelar
+                    setEditandoLimite(false);
+                  }}
+                  className="boton-limite-cancelar"
+                  title="Cancelar edición"
+                >
+                  <FaTimes />
+                </button>
+              </>
+            )}
           </div>
         </label>
-        <p><strong>Gastado:</strong> ${totalGastado}</p>
-        <p><strong>Disponible:</strong> ${totalRestante}</p>
+
+        <p><strong>Gastado:</strong> ${totalGastado.toLocaleString("es-CL")}</p>
+        <p><strong>Disponible:</strong> ${totalRestante.toLocaleString("es-CL")}</p>
 
         <button className="agregar-btn" onClick={() => setMostrarModal(true)}>
           <FaPlus /> Agregar Gasto
         </button>
       </div>
 
-      <div className="lista-gastos">   
-      
-        {/* 
-          <label>
-            {limite.map((lim, index) => (
-              <div key={index}>{lim.mes}</div>
-            ))}
-          </label>
-          */}
-     
-          
-        <h3>Gastos recientes</h3>
-        {notes.map((note, idx) => (
+      <div className="lista-gastos">
+        <h3>Gastos del día seleccionado</h3>
+        {gastosFiltradosPorFecha.length === 0 && <p>No hay gastos para esta fecha.</p>}
+        {gastosFiltradosPorFecha.map((note) => (
           <div className="gasto-item" key={note.id}>
             <div className="icono">
-              
-  
               {iconos[note.categoria.name_icon] || "???"}
-              
             </div>
             <div className="info">
-              <span className="categoria">{}</span>
+              <span className="categoria">{note.categoria.nombre}</span>
               <span className="nombre">{note.nombre}</span>
               <span className="fecha">{note.fecha}</span>
             </div>
@@ -263,15 +249,13 @@ function Gastos() {
                 minimumFractionDigits: 0,
               })}
             </div>
-
-              <div className="monto-con-boton">
-              <button className="eliminar-btn" onClick={() => handleEliminarGasto(note.id)}><FaRegTrashAlt /></button>
+            <div className="monto-con-boton">
+              <button className="eliminar-btn" onClick={() => handleEliminarGasto(note.id)}>
+                <FaRegTrashAlt />
+              </button>
             </div>
-
           </div>
         ))}
-
-
       </div>
 
       {/* MODAL para agregar gasto */}
@@ -285,13 +269,13 @@ function Gastos() {
 
             <label>Categoría:</label>
             <div className="icon-grid">
-              {categorias.map((cat, idx) => (
+              {categorias.map((cat) => (
                 <div
-                  key={idx}
+                  key={cat.id}
                   className={`icon-option ${categoriaSeleccionada?.nombre === cat.nombre ? 'selected' : ''}`}
                   onClick={() => setCategoriaSeleccionada(cat)}
                 >
-                  {iconos[cat.name_icon]}
+                  {iconos[cat.name_icon] || "???"}
                   <div className="cat-label">{cat.nombre}</div>
                 </div>
               ))}
@@ -299,7 +283,7 @@ function Gastos() {
 
             <label>Nombre:</label>
             <input
-              type="string"
+              type="text"
               placeholder="Ej: Ropa de invierno de H&M"
               value={nombre}
               onChange={(e) => setNombre(e.target.value)}

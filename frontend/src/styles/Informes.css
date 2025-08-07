@@ -1,0 +1,79 @@
+.informes-section {
+  padding: 2rem;
+  background-color: var(--background-color, #f9f9f9);
+  color: var(--text-color, #333);
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  max-height: 90vh;
+  overflow-y: auto;
+  padding-right: 20px; /* para espacio scrollbar */
+}
+
+.informes-section h2 {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.8rem;
+  margin-bottom: 1rem;
+}
+
+.informes-section p {
+  font-size: 1rem;
+  margin-bottom: 1rem;
+}
+
+.informes-list {
+  list-style: none;
+  padding-left: 1rem;
+}
+
+.informes-list li {
+  padding: 0.3rem 0;
+}
+
+@media (max-width: 768px) {
+  .informes-section {
+    padding: 1rem;
+  }
+
+  .informes-section h2 {
+    font-size: 1.5rem;
+  }
+}
+
+.filtros {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.filtro {
+  display: flex;
+  flex-direction: column;
+  font-size: 0.95rem;
+}
+
+.filtro label {
+  margin-bottom: 0.25rem;
+  font-weight: bold;
+}
+
+.filtro select {
+  padding: 0.4rem;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+}
+
+.graficos-container {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.grafico-individual {
+  background-color: white;
+  padding: 1rem;
+  border-radius: 8px;
+  box-shadow: 0 1px 6px rgba(0,0,0,0.1);
+}

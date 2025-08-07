@@ -3,15 +3,24 @@ import '../styles/Home.css';
 import logoImg from '../assets/logo.jpg';
 import fondo from '../assets/fondo2.png';
 
-
 const Home = () => {
   return (
-    <div className="home-container">
+    <div
+      className="background-container"
+      style={{
+        backgroundImage: `url(${fondo})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
+        minHeight: '100vh',
+        width: '100vw',
+      }}
+    >
       <nav className="navbar">
         <div className="nav-left">
-          <div className="logo">
+          <div className="logo-container">
             <img src={logoImg} alt="Logo Finanzilla" className="navbar-logo" />
-            <span>Finanzilla</span>
+            <span className="logo-text">Finanzilla</span>
           </div>
           <ul className="nav-links">
             <li><a href="/" className="nav-item">Inicio</a></li>
@@ -25,21 +34,8 @@ const Home = () => {
           <a href="/signup" className="nav-btn">Registrarse</a>
         </div>
       </nav>
-      
-      <div
-        className="main-content"
-        style={{
-          minHeight: '86vh',
-          backgroundImage: `url(${fondo})`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          backgroundRepeat: 'no-repeat',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          padding: '40px 30px'
-        }}
-      >
+
+      <div className="main-content">
         <div className="text-section">
           <h1>Bienvenido a Finanzilla</h1>
           <h2>Controla tus finanzas fácilmente</h2>
