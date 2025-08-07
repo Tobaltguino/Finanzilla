@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Note, User, Gasto, LimiteMensual
+from .models import Note, User, Gasto, LimiteMensual, Categoria
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
@@ -37,4 +37,15 @@ class AgregarGastoSerializer(serializers.ModelSerializer):
     class Meta:
         model=Gasto
         fields=["nombre", "fecha", "monto", "categoria", "usuario"]
+        read_only_fields = ["usuario"]
+
+class CategoriaSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Categoria
+        fields = ["id", "nombre", "usuario", "name_icon"]
+
+class AgregarCategoriaSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=Categoria
+        fields=["nombre", "usuario", "name_icon"]
         read_only_fields = ["usuario"]

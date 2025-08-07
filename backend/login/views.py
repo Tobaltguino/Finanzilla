@@ -1,6 +1,6 @@
 from django.shortcuts import render
-from .models import User, Note, Gasto, LimiteMensual
-from .serializer import NoteSerializer, UserRegistrationSerializer, GastoSerializer, LimiteMensualSerializer, AgregarGastoSerializer
+from .models import User, Note, Gasto, LimiteMensual, Categoria
+from .serializer import NoteSerializer, UserRegistrationSerializer, GastoSerializer, LimiteMensualSerializer, AgregarGastoSerializer, CategoriaSerializer, AgregarCategoriaSerializer
 
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, AllowAny
@@ -153,7 +153,6 @@ def get_limite(request):
     return Response(serializer.data)
 
 # Obtiene el "usuario" del login
-
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_usuario_actual(request):
@@ -189,3 +188,35 @@ def eliminar_gasto(request, gasto_id):
         return Response({'success': True})
     except Gasto.DoesNotExist:
         return Response({'error': 'Gasto no encontrado'}, status=404)
+    
+# Obtiene las categorias del usuario
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_categoria(request):
+    user = request.user 
+    categorias = Categoria.objects.filter(usuario=user)
+    serializer = CategoriaSerializer(categorias, many=True)
+    return Response(serializer.data)
+
+# Agrega una categoria
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def agregar_categoria(request):
+
+    serializer = AgregarCategoriaSerializer(data=request.data)
+
+    if serializer.is_valid():
+        serializer.save(usuario=request.user)  #admin = 6 
+        return Response(serializer.data)
+    return Response(serializer.errors, status=400)
+
+# Elimina una categoria
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+def eliminar_categoria(request, categoria_id):
+    try:
+        categoria = Categoria.objects.get(id=categoria_id, usuario=request.user)
+        categoria.delete()
+        return Response({'success': True})
+    except Gasto.DoesNotExist:
+        return Response({'error': 'Categoria no encontrado'}, status=404)

@@ -8,7 +8,7 @@ import 'react-datepicker/dist/react-datepicker.css';
 import '../../styles/Gastos.css';
 
 
-import { get_gastos, get_limite, get_notes, agregar_gasto, set_limite, eliminar_gasto } from '../../endpoints/api';
+import { get_gastos, get_limite, get_notes, agregar_gasto, set_limite, eliminar_gasto, get_categorias } from '../../endpoints/api';
 
 const categoriasDisponibles = [
   { id: 1, nombre: 'Comida', icono: <FaCar /> },
@@ -138,6 +138,19 @@ function Gastos() {
         setLimiteUsuario(limiteActual.limite);
       }
     }, [limiteActual]);
+
+    /** Traer las categorias de la base de datos y colocarlo en una variable */
+    const [categorias, setCategorias] = useState([]) // [{id:1, nombre:categoria, usuario_id:1, name_icon:"FaCar"}, {id:2, nombre:bastian,...}]
+    useEffect(() => {
+      const fetchCategorias = async () => {
+        const cat = await get_categorias()
+        setCategorias(cat)
+      }
+      fetchCategorias();
+    }, [])
+    console.log(categorias)
+
+
 
     /** ------------------------------------------------------------------------------------------ */
 
@@ -272,13 +285,13 @@ function Gastos() {
 
             <label>Categoría:</label>
             <div className="icon-grid">
-              {categoriasDisponibles.map((cat, idx) => (
+              {categorias.map((cat, idx) => (
                 <div
                   key={idx}
                   className={`icon-option ${categoriaSeleccionada?.nombre === cat.nombre ? 'selected' : ''}`}
                   onClick={() => setCategoriaSeleccionada(cat)}
                 >
-                  {cat.icono}
+                  {iconos[cat.name_icon]}
                   <div className="cat-label">{cat.nombre}</div>
                 </div>
               ))}

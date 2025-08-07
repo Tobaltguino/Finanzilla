@@ -12,6 +12,10 @@ const LIMITE_MENSUAL_URL = `${BASE_URL}limite/`
 const AGREGAR_GASTO = `${BASE_URL}agregar_gasto/`
 const USUARIO_URL = `${BASE_URL}usuario/`;
 export const ELIMINAR_GASTO = `${BASE_URL}eliminar_gasto/`; // correcto   
+const SET_LIMITE_URL = `${BASE_URL}set_limite/`;
+const CATEGORIAS_URL = `${BASE_URL}categorias/`;
+const AGREGAR_CATEGORIA = `${BASE_URL}agregar_categoria/`
+const ELIMINAR_CATEGORIA = `${BASE_URL}eliminar_categoria/`
 
 
 
@@ -123,15 +127,13 @@ export const agregar_gasto = async (nombre, fecha, monto, categoria) => {
 };
 
 
-
+//Falta un try por si no obtiene el usuario
 export const get_usuario = async () => {
   const response = await axios.get(USUARIO_URL, { withCredentials: true });
   return response.data;
 };
 
 //Guarda el limite mensual 
-const SET_LIMITE_URL = `${BASE_URL}set_limite/`;
-
 export const set_limite = async (nuevoLimite) => {
   const response = await axios.post(SET_LIMITE_URL,
     { limite: nuevoLimite },
@@ -140,8 +142,45 @@ export const set_limite = async (nuevoLimite) => {
   return response.data;
 };
 
+/** ------------------------------------------------------------------------------------------ */
+/** Agregar todas las funciones con un try, para evitar el error de reiniciar la página porque el token expiró */
+/** ------------------------------------------------------------------------------------------ */
+
+// Falta un try por si hay un error
 export const eliminar_gasto = async (id) => {
   const response = await axios.delete(`${ELIMINAR_GASTO}${id}/  `, {
+    withCredentials: true,
+  });
+  return response.data;
+};
+
+//Obtiene las categorias
+export const get_categorias = async () => {
+    try{
+        const response = await axios.get(CATEGORIAS_URL, 
+            { withCredentials: true }
+        )
+        return response.data
+    } catch (error) {
+        return call_refresh(error, axios.get(CATEGORIAS_URL, { withCredentials: true }))
+    }
+
+}
+
+export const agregar_categoria = async (nombre, name_icon) => {
+    try {
+        const response = await axios.post(AGREGAR_CATEGORIA, 
+            {nombre:nombre, name_icon:name_icon}, 
+            { withCredentials: true }
+        )
+        return response.data
+    } catch (error) {
+        return call_refresh(error, axios.post(AGREGAR_CATEGORIA, { withCredentials: true }))
+    }
+};
+
+export const eliminar_categoria = async (id) => {
+  const response = await axios.delete(`${ELIMINAR_CATEGORIA}${id}/  `, {
     withCredentials: true,
   });
   return response.data;

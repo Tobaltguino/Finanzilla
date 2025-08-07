@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import '../../styles/Categorias.css';
 import {
   FaListUl,
@@ -27,6 +27,8 @@ import {
   FaStore,
   FaTint,
 } from 'react-icons/fa';
+
+import { agregar_categoria, eliminar_categoria, get_categorias } from '../../endpoints/api';
 
 const categoriasIniciales = [
   { nombre: 'Renta', icono: <FaHome /> },
@@ -59,8 +61,32 @@ const iconosDisponibles = [
   { nombre: 'FaTree', icono: <FaTree /> },
 ];
 
+const iconosDisponibles2 = {
+  FaHome: <FaHome />,
+  FaCar: <FaCar />,
+  FaUtensils: <FaUtensils />,
+  FaSmile: <FaSmile />,
+  FaBriefcase: <FaBriefcase />,
+  FaGamepad: <FaGamepad />,
+  FaGift: <FaGift />,
+  FaHeart: <FaHeart />,
+  FaBook: <FaBook />,
+  FaShoppingCart: <FaShoppingCart />,
+  FaMoneyBillWave: <FaMoneyBillWave />,
+  FaBolt: <FaBolt />,
+  FaPaw: <FaPaw />,
+  FaBus: <FaBus />,
+  FaPhone: <FaPhone />,
+  FaLaptop: <FaLaptop />,
+  FaTint: <FaTint />,
+  FaStore: <FaStore />,
+  FaStethoscope: <FaStethoscope />,
+  FaTree: <FaTree />,
+};
+
+
 function Categorias() {
-  const [categorias, setCategorias] = useState(categoriasIniciales);
+  const [categorias, setCategorias] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
   const [nuevoNombre, setNuevoNombre] = useState('');
   const [iconoSeleccionado, setIconoSeleccionado] = useState(null);
@@ -84,35 +110,21 @@ function Categorias() {
     setModalVisible(true);
   };
 
-  const handleEliminar = (index) => {
+  const handleEliminar = async (id) => {
     const confirm = window.confirm("¿Seguro que deseas eliminar esta categoría?");
     if (!confirm) return;
-    const nuevasCategorias = [...categorias];
-    nuevasCategorias.splice(index, 1);
-    setCategorias(nuevasCategorias);
-  };
 
-  const handleGuardar = () => {
-    if (!nuevoNombre || !iconoSeleccionado) {
-      alert("Completa el nombre y selecciona un ícono.");
-      return;
+    try {
+      await eliminar_categoria(id);
+      const categoriasActualizados = await get_categorias();
+      setCategorias(categoriasActualizados);
+    } catch (error) {
+      console.error("Error al eliminar la categoria:", error);
     }
 
-    const nuevaCategoria = {
-      nombre: nuevoNombre,
-      icono: iconoSeleccionado.icono,
-    };
-
-    if (modoEdicion) {
-      const nuevas = [...categorias];
-      nuevas[indiceEditando] = nuevaCategoria;
-      setCategorias(nuevas);
-    } else {
-      setCategorias([...categorias, nuevaCategoria]);
-    }
-
-    handleCerrarModal();
   };
+
+
 
   const handleCerrarModal = () => {
     setModalVisible(false);
@@ -121,6 +133,54 @@ function Categorias() {
     setModoEdicion(false);
     setIndiceEditando(null);
   };
+
+  /** ------------------------------------------------------------------------------------------ */
+  /** Traer las categorias de la base de datos y colocarlo en una variable */
+  //const [categorias, setCategorias] = useState([]) // [{id:1, nombre:categoria, usuario_id:1, name_icon:"FaCar"}, {id:2, nombre:bastian,...}]
+  useEffect(() => {
+    const fetchCategorias = async () => {
+      const cat = await get_categorias()
+      setCategorias(cat)
+    }
+    fetchCategorias();
+  }, [])
+  console.log(categorias)
+
+  /** Funcion para guardar el gasto en base de datos */
+  const handleGuardar = async (e) => {
+    e.preventDefault();
+    if (!nuevoNombre || !iconoSeleccionado) {
+      alert("Completa el nombre y selecciona un ícono.");
+      return;
+    }
+
+    const nuevaCategoria = {
+      nombre: nuevoNombre,                      // Nombre de la categoria
+      icono: iconoSeleccionado.icono.type.name, // Solo texto para BD = <FaHome /> -> FaHome
+    };
+
+    if (modoEdicion) {
+      const nuevas = [...categorias];
+      nuevas[indiceEditando] = nuevaCategoria;
+      setCategorias(nuevas);
+    } else {
+      //setCategorias([...categorias, nuevaCategoria]);
+      try {
+        const response = await agregar_categoria(nuevaCategoria.nombre, nuevaCategoria.icono); // 
+
+        // Ejecutar la funcion get_gastos() y asignarla en Notes (lista de gastos), por lo tanto se vuelve a ejecutar el return
+        // Mostrando de nuevo, la nueva base de datos
+        const categoriasActualizados = await get_categorias();
+        setCategorias(categoriasActualizados);
+
+      } catch (error) {
+        console.error("Error al agregar categoria:", error);
+      }
+    }
+
+    handleCerrarModal();
+  };
+  /** */
 
   return (
     <div className="categorias-section">
@@ -170,12 +230,13 @@ function Categorias() {
         {categorias.map((cat, idx) => (
           <div className="categoria-card" key={idx}>
             <div className="card-actions">
-              <button className="edit-btn" onClick={() => handleEditar(idx)}><FaEdit /></button>
-              <button className="delete-btn" onClick={() => handleEliminar(idx)}><FaTrash /></button>
+              <button className="edit-btn" onClick={() => handleEditar(cat.id)}><FaEdit /></button>
+              <button className="delete-btn" onClick={() => handleEliminar(cat.id)}><FaTrash /></button>
             </div>
             <div className="card-content">
-              <div className="categoria-icon">{cat.icono}</div>
+              <div className="categoria-icon">{iconosDisponibles2[cat.name_icon]}</div>
               <div className="categoria-nombre">{cat.nombre}</div>
+              <div className="categoria-nombre">{cat.id}</div>
             </div>
           </div>
         ))}
