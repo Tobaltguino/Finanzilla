@@ -62,6 +62,7 @@ function Ajustes() {
     const nuevaDivisa = e.target.value;
     try {
       const divisa = await set_divisa(nuevaDivisa);
+      setDivisa(nuevaDivisa)
     }
     catch(error){
       console.log(error)
