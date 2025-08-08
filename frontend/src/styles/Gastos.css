@@ -388,3 +388,28 @@
   transform: scale(1.2);
   color: #1c5980;
 }
+
+/* Por defecto todos ocultos */
+.boton-editar-limite,
+.input-container {
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+/* Cuando visible */
+.visible {
+  opacity: 1;
+  visibility: visible;
+  display: inline-flex; /* o flex según diseño */
+  align-items: center;
+}
+
+/* Cuando oculto */
+.hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  position: absolute; /* para que no afecte layout */
+  width: 0;
+  height: 0;
+  overflow: hidden;
+}

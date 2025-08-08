@@ -39,6 +39,7 @@ function Gastos() {
   const [totalGastado, setTotalGastado] = useState(0);
   const [totalRestante, setTotalRestante] = useState(0);
 
+
   useEffect(() => {
     const fetchNotes = async () => {
       const notes = await get_gastos();
@@ -64,11 +65,13 @@ function Gastos() {
   }, []);
 
   useEffect(() => {
-    const limiteActual = limite.length > 0 ? limite[0] : null;
-    if (limiteActual?.limite) {
-      setLimiteUsuario(Number(limiteActual.limite));
+    if (!editandoLimite) {
+      const limiteActual = limite.length > 0 ? limite[0] : null;
+      if (limiteActual?.limite) {
+        setLimiteUsuario(Number(limiteActual.limite));
+      }
     }
-  }, [limite]);
+  }, [limite, editandoLimite]);
 
   useEffect(() => {
     const total = notes.reduce((acc, note) => acc + Number(note.monto), 0);
@@ -89,7 +92,6 @@ function Gastos() {
       setLimite(nuevoLimite);
     } catch (error) {
       alert("Error al guardar el límite");
-      console.error(error);
     }
   };
 
@@ -110,10 +112,13 @@ function Gastos() {
       return;
     }
 
-    const fechaFormateada = fechaSeleccionada.toISOString().split("T")[0];
+    const yyyy = fechaSeleccionada.getFullYear();
+    const mm = String(fechaSeleccionada.getMonth() + 1).padStart(2, '0');
+    const dd = String(fechaSeleccionada.getDate()).padStart(2, '0');
+    const fechaFormateadaLocal = `${yyyy}-${mm}-${dd}`;
 
     try {
-      await agregar_gasto(nombre, fechaFormateada, monto, Number(categoriaSeleccionada.id));
+      await agregar_gasto(nombre, fechaFormateadaLocal, monto, Number(categoriaSeleccionada.id));
       const gastosActualizados = await get_gastos();
       setNotes(gastosActualizados);
     } catch (error) {
@@ -127,58 +132,59 @@ function Gastos() {
   };
 
   const renderLimiteEditor = () => {
-    if (!editandoLimite) {
-      return (
-        <>
-          <span className="limite-valor">${limiteUsuario.toLocaleString("es-CL")}</span>
-          <button
-            className="boton-editar-limite"
-            title="Editar límite"
-            onClick={() => {
-              setLimiteOriginal(Number(limiteUsuario));
-              setEditandoLimite(true);
-            }}
-          >
-            <FaPen />
-          </button>
-        </>
-      );
-    } else {
-      return (
-        <>
-          <span className="simbolo">$</span>
-          <input
-            type="number"
-            value={limiteUsuario}
-            onChange={(e) => setLimiteUsuario(Number(e.target.value))}
-            className="input-limite"
-          />
-          <button
-            onClick={() => {
-              console.log('Cancelar edición pulsado');
-              setLimiteUsuario(limiteOriginal);
-              setEditandoLimite(false);
-            }}
-            className="boton-limite-cancelar"
-            title="Cancelar edición"
-          >
-            <FaTimes />
-          </button>
+  return (
+    <>
+      <span className={`limite-valor ${editandoLimite ? 'hidden' : 'visible'}`}>
+        ${limiteUsuario.toLocaleString("es-CL")}
+      </span>
 
-          <button
-            onClick={() => {
-              guardarLimite();
-              setEditandoLimite(false);
-            }}
-            className="boton-limite-check"
-            title="Guardar límite"
-          >
-            <FaCheckSquare />
-          </button>
-        </>
-      );
-    }
-  };
+      <button
+        className={`boton-editar-limite ${editandoLimite ? 'hidden' : 'visible'}`}
+        title="Editar límite"
+        onClick={() => {
+          setLimiteOriginal(Number(limiteUsuario));
+          setEditandoLimite(true);
+        }}
+      >
+        <FaPen />
+      </button>
+
+      <span className={`input-container ${editandoLimite ? 'visible' : 'hidden'}`}>
+        <span className="simbolo">$</span>
+        <input
+          type="number"
+          value={limiteUsuario}
+          onChange={(e) => setLimiteUsuario(Number(e.target.value))}
+          className="input-limite"
+        />
+
+        <button
+          onClick={() => {
+            setLimiteUsuario(limiteOriginal);
+            setEditandoLimite(false);
+          }}
+          className="boton-limite-cancelar"
+          title="Cancelar edición"
+        >
+          <FaTimes />
+        </button>
+
+        <button
+          onClick={async () => {
+            await guardarLimite();
+            setEditandoLimite(false);
+          }}
+          className="boton-limite-check"
+          title="Guardar límite"
+        >
+          <FaCheckSquare />
+        </button>
+      </span>
+    </>
+  );
+};
+
+
 
   const diaSeleccionado = fechaSeleccionada.getDate().toString().padStart(2, '0');
   const mesSeleccionado = (fechaSeleccionada.getMonth() + 1).toString().padStart(2, '0');
