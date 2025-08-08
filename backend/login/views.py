@@ -160,6 +160,7 @@ def get_usuario_actual(request):
     return Response({
         "username": user.username,
         "email": user.email,
+        "divisa": user.divisa
     })
 
 ## Guarda el limite mensual
@@ -220,3 +221,30 @@ def eliminar_categoria(request, categoria_id):
         return Response({'success': True})
     except Gasto.DoesNotExist:
         return Response({'error': 'Categoria no encontrado'}, status=404)
+    
+## 
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def set_divisa2(request):
+    user = request.user
+    data = request.data
+
+    divisa, created = User.objects.update_or_create(
+        username=user,
+        defaults={"divisa": data.get("divisa")}
+    )
+
+    return Response({"success": True, "divisa": divisa.divisa})
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def set_divisa(request):
+    user = request.user  # Usuario autenticado
+    nueva_divisa = request.data.get("divisa")
+
+    if nueva_divisa:
+        user.divisa = nueva_divisa
+        user.save()
+        return Response({"success": True, "divisa_actualizada": user.divisa})
+    else:
+        return Response({"success": False, "error": "No se proporcionó la divisa"}, status=400)

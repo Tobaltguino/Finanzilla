@@ -27,6 +27,7 @@ class Gasto(models.Model):
     fecha = models.DateField()
     monto = models.DecimalField(max_digits=10, decimal_places=2)
     categoria = models.ForeignKey(Categoria, on_delete=models.CASCADE)
+    tipo_gasto = models.CharField(max_length=50,default="Normal")
 
 class LimiteMensual(models.Model):
     usuario = models.ForeignKey(User, on_delete=models.CASCADE)

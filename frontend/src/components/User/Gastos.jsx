@@ -9,7 +9,7 @@ import { es } from 'date-fns/locale';
 import 'react-datepicker/dist/react-datepicker.css';
 import '../../styles/Gastos.css';
 
-import { get_gastos, get_limite, agregar_gasto, set_limite, eliminar_gasto, get_categorias } from '../../endpoints/api';
+import { get_gastos, get_limite, agregar_gasto, set_limite, eliminar_gasto, get_categorias,get_usuario } from '../../endpoints/api';
 
 const iconos = {
   FaCar: <FaCar />,
@@ -41,7 +41,7 @@ function Gastos() {
   const [fechaGasto, setFechaGasto] = useState(new Date());
 
   // Nuevo estado para controlar tipo de gasto (normal o fijo)
-  const [tipoGasto, setTipoGasto] = useState('normal'); // 'normal' o 'fijo'
+  const [tipoGasto, setTipoGasto] = useState('Normal'); // 'normal' o 'fijo'
 
   useEffect(() => {
     const fetchNotes = async () => {
@@ -123,7 +123,7 @@ function Gastos() {
     try {
       // Aquí podrías ajustar si tienes un API distinto para gastos fijos
       // Por ahora, reutilizamos la misma función agregar_gasto
-      await agregar_gasto(nombre, fechaFormateadaLocal, monto, Number(categoriaSeleccionada.id));
+      await agregar_gasto(nombre, fechaFormateadaLocal, monto, Number(categoriaSeleccionada.id),tipoGasto);
       const gastosActualizados = await get_gastos();
       setNotes(gastosActualizados);
     } catch (error) {
@@ -141,7 +141,7 @@ function Gastos() {
     return (
       <>
         <span className={`limite-valor ${editandoLimite ? 'hidden' : 'visible'}`}>
-          ${limiteUsuario.toLocaleString("es-CL")}
+          ${limiteUsuario.toLocaleString("es-CL")}{divisa}
         </span>
 
         <button
@@ -199,7 +199,17 @@ function Gastos() {
     const [anio, mes, dia] = note.fecha.split('-');
     return anio === anioSeleccionado && mes === mesSeleccionado && dia === diaSeleccionado;
   });
+  //función del suso
+  const [divisa, setDivisa] = useState('');
+  useEffect(() => {
+    const cargarDivisa = async () => {
+      const datos = await get_usuario(); // función que harás en api.js
+      setDivisa(datos.divisa);
+    };
 
+    cargarDivisa();
+  }, []); 
+  console.log(divisa)
   return (
     <div className="gastos-layout">
       <div className="limite-info sticky-box">
@@ -222,15 +232,15 @@ function Gastos() {
           </div>
         </label>
 
-        <p><strong>Gastado:</strong> ${totalGastado.toLocaleString("es-CL")}</p>
-        <p><strong>Disponible:</strong> ${totalRestante.toLocaleString("es-CL")}</p>
+        <p><strong>Gastado:</strong> ${totalGastado.toLocaleString("es-CL")}{divisa}</p>
+        <p><strong>Disponible:</strong> ${totalRestante.toLocaleString("es-CL")}{divisa}</p>
 
         <button
           className="agregar-btn"
           onClick={() => {
             setMostrarModal(true);
             setFechaGasto(new Date());
-            setTipoGasto('normal');
+            setTipoGasto('Normal');
             setCategoriaSeleccionada(null);
             setNombre('');
             setMonto('');
@@ -244,7 +254,7 @@ function Gastos() {
           onClick={() => {
             setMostrarModal(true);
             setFechaGasto(new Date());
-            setTipoGasto('fijo');
+            setTipoGasto('Fijo');
             setCategoriaSeleccionada(null);
             setNombre('');
             setMonto('');

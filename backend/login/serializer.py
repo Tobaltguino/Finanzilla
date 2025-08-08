@@ -36,7 +36,7 @@ class LimiteMensualSerializer(serializers.ModelSerializer):
 class AgregarGastoSerializer(serializers.ModelSerializer):
     class Meta:
         model=Gasto
-        fields=["nombre", "fecha", "monto", "categoria", "usuario"]
+        fields=["nombre", "fecha", "monto", "categoria", "usuario","tipo_gasto"]
         read_only_fields = ["usuario"]
 
 class CategoriaSerializer(serializers.ModelSerializer):

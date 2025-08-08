@@ -16,6 +16,7 @@ const SET_LIMITE_URL = `${BASE_URL}set_limite/`;
 const CATEGORIAS_URL = `${BASE_URL}categorias/`;
 const AGREGAR_CATEGORIA = `${BASE_URL}agregar_categoria/`
 const ELIMINAR_CATEGORIA = `${BASE_URL}eliminar_categoria/`
+const SET_DIVISA_URL = `${BASE_URL}set_divisa/`;
 
 
 
@@ -118,9 +119,9 @@ export const register = async (username, email, password) => {
 }
 
 
-export const agregar_gasto = async (nombre, fecha, monto, categoria) => {
+export const agregar_gasto = async (nombre, fecha, monto, categoria,tipo_gasto) => {
     const response = await axios.post(AGREGAR_GASTO, 
-        {nombre:nombre, fecha:fecha, monto:monto, categoria:categoria}, 
+        {nombre:nombre, fecha:fecha, monto:monto, categoria:categoria,tipo_gasto:tipo_gasto}, 
         { withCredentials: true }
     )
     return response.data
@@ -183,5 +184,12 @@ export const eliminar_categoria = async (id) => {
   const response = await axios.delete(`${ELIMINAR_CATEGORIA}${id}/  `, {
     withCredentials: true,
   });
+  return response.data;
+};
+export const set_divisa = async (nuevaDivisa) => {
+  const response = await axios.post(SET_DIVISA_URL,
+    { divisa: nuevaDivisa },
+    { withCredentials: true }
+  );
   return response.data;
 };

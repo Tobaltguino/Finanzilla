@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState,useEffect } from 'react';
+import { get_usuario, set_divisa } from '../../endpoints/api';
 import '../../styles/Ajustes.css';
 import {
   FaUserCircle,
@@ -47,7 +48,24 @@ function Ajustes() {
     setConfirmarPass('');
     setCambiarPassVisible(false);
   };
+  
+  useEffect(() => {
+    const cargarDivisa = async () => {
+      const datos = await get_usuario(); // función que harás en api.js
+      setDivisa(datos.divisa);
+    };
 
+    cargarDivisa();
+  }, []);
+  const handleGuardarDivisa = async (e) => {
+    try {
+      const divisa = await set_divisa();
+      console.log(divisa);
+    }
+    catch(error){
+      console.log(error)
+    }
+  }
   return (
     <div className={`ajustes-container tema-${tema}`}>
       <h2>Ajustes</h2>
@@ -56,11 +74,10 @@ function Ajustes() {
         <ul>
           <li>
             <FaDollarSign className="ajuste-icon" />
-            <select value={divisa} onChange={e => setDivisa(e.target.value)}>
+            <select value={divisa} onChange={e => handleGuardarDivisa(e.target.value)}>
               <option value="USD">USD - Dólar</option>
               <option value="EUR">EUR - Euro</option>
               <option value="CLP">CLP - Peso Chileno</option>
-              <option value="JPY">JPY - Yen</option>
             </select>
           </li>
         </ul>
