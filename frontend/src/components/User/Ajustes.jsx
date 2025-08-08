@@ -58,9 +58,10 @@ function Ajustes() {
     cargarDivisa();
   }, []);
   const handleGuardarDivisa = async (e) => {
+    e.preventDefault();
+    const nuevaDivisa = e.target.value;
     try {
-      const divisa = await set_divisa();
-      console.log(divisa);
+      const divisa = await set_divisa(nuevaDivisa);
     }
     catch(error){
       console.log(error)
@@ -74,7 +75,7 @@ function Ajustes() {
         <ul>
           <li>
             <FaDollarSign className="ajuste-icon" />
-            <select value={divisa} onChange={e => handleGuardarDivisa(e.target.value)}>
+            <select value={divisa} onChange={handleGuardarDivisa}>
               <option value="USD">USD - Dólar</option>
               <option value="EUR">EUR - Euro</option>
               <option value="CLP">CLP - Peso Chileno</option>
