@@ -236,7 +236,6 @@ function Categorias() {
             <div className="card-content">
               <div className="categoria-icon">{iconosDisponibles2[cat.name_icon]}</div>
               <div className="categoria-nombre">{cat.nombre}</div>
-              <div className="categoria-nombre">{cat.id}</div>
             </div>
           </div>
         ))}

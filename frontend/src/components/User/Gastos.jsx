@@ -26,30 +26,19 @@ const CustomInput = React.forwardRef(({ value, onClick }, ref) => (
 
 function Gastos() {
   const [fechaSeleccionada, setFechaSeleccionada] = useState(new Date());
-
-  /** Gastos traídos de base de datos */
   const [notes, setNotes] = useState([]);
-
-  /** Límite y estado usuario */
   const [limite, setLimite] = useState([]);
   const [limiteUsuario, setLimiteUsuario] = useState(0);
   const [editandoLimite, setEditandoLimite] = useState(false);
-  const [limiteOriginal, setLimiteOriginal] = useState(0); // Guardamos el valor original para restaurar
-
-  /** Categorías */
+  const [limiteOriginal, setLimiteOriginal] = useState(0);
   const [categorias, setCategorias] = useState([]);
-
-  /** Modal y nuevos gastos */
   const [mostrarModal, setMostrarModal] = useState(false);
   const [categoriaSeleccionada, setCategoriaSeleccionada] = useState(null);
   const [nombre, setNombre] = useState('');
   const [monto, setMonto] = useState('');
-
-  /** Totales */
   const [totalGastado, setTotalGastado] = useState(0);
   const [totalRestante, setTotalRestante] = useState(0);
 
-  /** Fetch gastos desde la base */
   useEffect(() => {
     const fetchNotes = async () => {
       const notes = await get_gastos();
@@ -58,7 +47,6 @@ function Gastos() {
     fetchNotes();
   }, []);
 
-  /** Fetch límite */
   useEffect(() => {
     const fetchLimite = async () => {
       const data = await get_limite();
@@ -67,7 +55,6 @@ function Gastos() {
     fetchLimite();
   }, []);
 
-  /** Fetch categorías */
   useEffect(() => {
     const fetchCategorias = async () => {
       const cat = await get_categorias();
@@ -76,28 +63,24 @@ function Gastos() {
     fetchCategorias();
   }, []);
 
-  /** Actualizar limiteUsuario cuando cambie limite */
   useEffect(() => {
     const limiteActual = limite.length > 0 ? limite[0] : null;
     if (limiteActual?.limite) {
-      setLimiteUsuario(limiteActual.limite);
+      setLimiteUsuario(Number(limiteActual.limite));
     }
   }, [limite]);
 
-  /** Calcular total gastado cuando notes cambian */
   useEffect(() => {
     const total = notes.reduce((acc, note) => acc + Number(note.monto), 0);
     setTotalGastado(total);
   }, [notes]);
 
-  /** Calcular dinero restante */
   useEffect(() => {
     const limiteActual = limite.length > 0 ? limite[0] : null;
     const restante = Number(limiteActual?.limite || 0) - totalGastado;
     setTotalRestante(restante);
   }, [totalGastado, limite]);
 
-  /** Guardar límite */
   const guardarLimite = async () => {
     try {
       await set_limite(limiteUsuario);
@@ -110,7 +93,6 @@ function Gastos() {
     }
   };
 
-  /** Eliminar gasto */
   const handleEliminarGasto = async (id) => {
     try {
       await eliminar_gasto(id);
@@ -121,7 +103,6 @@ function Gastos() {
     }
   };
 
-  /** Guardar nuevo gasto */
   const handleGuardarGasto = async (e) => {
     e.preventDefault();
     if (!categoriaSeleccionada || !monto) {
@@ -129,10 +110,10 @@ function Gastos() {
       return;
     }
 
-    const fechaActual = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
+    const fechaFormateada = fechaSeleccionada.toISOString().split("T")[0];
 
     try {
-      await agregar_gasto(nombre, fechaActual, monto, Number(categoriaSeleccionada.id));
+      await agregar_gasto(nombre, fechaFormateada, monto, Number(categoriaSeleccionada.id));
       const gastosActualizados = await get_gastos();
       setNotes(gastosActualizados);
     } catch (error) {
@@ -145,7 +126,60 @@ function Gastos() {
     setMostrarModal(false);
   };
 
-  /** Filtrar gastos por día, mes y año según fechaSeleccionada */
+  const renderLimiteEditor = () => {
+    if (!editandoLimite) {
+      return (
+        <>
+          <span className="limite-valor">${limiteUsuario.toLocaleString("es-CL")}</span>
+          <button
+            className="boton-editar-limite"
+            title="Editar límite"
+            onClick={() => {
+              setLimiteOriginal(Number(limiteUsuario));
+              setEditandoLimite(true);
+            }}
+          >
+            <FaPen />
+          </button>
+        </>
+      );
+    } else {
+      return (
+        <>
+          <span className="simbolo">$</span>
+          <input
+            type="number"
+            value={limiteUsuario}
+            onChange={(e) => setLimiteUsuario(Number(e.target.value))}
+            className="input-limite"
+          />
+          <button
+            onClick={() => {
+              console.log('Cancelar edición pulsado');
+              setLimiteUsuario(limiteOriginal);
+              setEditandoLimite(false);
+            }}
+            className="boton-limite-cancelar"
+            title="Cancelar edición"
+          >
+            <FaTimes />
+          </button>
+
+          <button
+            onClick={() => {
+              guardarLimite();
+              setEditandoLimite(false);
+            }}
+            className="boton-limite-check"
+            title="Guardar límite"
+          >
+            <FaCheckSquare />
+          </button>
+        </>
+      );
+    }
+  };
+
   const diaSeleccionado = fechaSeleccionada.getDate().toString().padStart(2, '0');
   const mesSeleccionado = (fechaSeleccionada.getMonth() + 1).toString().padStart(2, '0');
   const anioSeleccionado = fechaSeleccionada.getFullYear().toString();
@@ -174,51 +208,7 @@ function Gastos() {
         <label className="limite-label">
           <strong>Límite:</strong>
           <div className="input-limite-wrapper">
-            {!editandoLimite ? (
-              <>
-                <span className="limite-valor">${limiteUsuario.toLocaleString("es-CL")}</span>
-                <button
-                  className="boton-editar-limite"
-                  title="Editar límite"
-                  onClick={() => {
-                    setLimiteOriginal(limiteUsuario); // Guardar valor actual antes de editar
-                    setEditandoLimite(true);
-                  }}
-                >
-                  <FaPen />
-                </button>
-              </>
-            ) : (
-              <>
-                <span className="simbolo">$</span>
-                <input
-                  type="number"
-                  value={limiteUsuario}
-                  onChange={(e) => setLimiteUsuario(e.target.value)}
-                  className="input-limite"
-                />
-                <button
-                  onClick={() => {
-                    guardarLimite();
-                    setEditandoLimite(false);
-                  }}
-                  className="boton-limite-check"
-                  title="Guardar límite"
-                >
-                  <FaCheckSquare />
-                </button>
-                <button
-                  onClick={() => {
-                    setLimiteUsuario(limiteOriginal); // Restaurar valor original al cancelar
-                    setEditandoLimite(false);
-                  }}
-                  className="boton-limite-cancelar"
-                  title="Cancelar edición"
-                >
-                  <FaTimes />
-                </button>
-              </>
-            )}
+            {renderLimiteEditor()}
           </div>
         </label>
 
@@ -258,7 +248,6 @@ function Gastos() {
         ))}
       </div>
 
-      {/* MODAL para agregar gasto */}
       {mostrarModal && (
         <div className="modal-overlay">
           <div className="modal">
@@ -281,10 +270,19 @@ function Gastos() {
               ))}
             </div>
 
+            <label>Fecha:</label>
+            <div>
+              {fechaSeleccionada.toLocaleDateString("es-CL", {
+                day: "2-digit",
+                month: "long",
+                year: "numeric"
+              })}
+            </div>
+
             <label>Nombre:</label>
             <input
               type="text"
-              placeholder="Ej: Ropa de invierno de H&M"
+              placeholder="Ej: Comida"
               value={nombre}
               onChange={(e) => setNombre(e.target.value)}
             />
@@ -292,7 +290,7 @@ function Gastos() {
             <label>Monto:</label>
             <input
               type="number"
-              placeholder="Ej: 10.000"
+              placeholder="Ej: 10000"
               value={monto}
               onChange={(e) => setMonto(e.target.value)}
             />
