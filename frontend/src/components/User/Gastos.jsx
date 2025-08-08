@@ -1,21 +1,79 @@
 import React, { useState, useEffect } from 'react';
+import { ToastContainer, toast } from "react-toastify";
+import Swal from "sweetalert2";
 import {
-  FaUtensils, FaCar, FaHome, FaSmile,
-  FaChevronDown, FaPlus, FaTimes, FaRegTrashAlt,
-  FaCheckSquare, FaPen
+  FaListUl,
+  FaEdit,
+  FaTrash,
+  FaPlus,
+  FaHome,
+  FaCar,
+  FaUtensils,
+  FaSmile,
+  FaBriefcase,
+  FaGamepad,
+  FaGift,
+  FaHeart,
+  FaBook,
+  FaShoppingCart,
+  FaMoneyBillWave,
+  FaBolt,
+  FaPaw,
+  FaBus,
+  FaPhone,
+  FaLaptop,
+  FaTimes,
+  FaTree,
+  FaStethoscope,
+  FaStore,
+  FaTint,
+  FaStar,
+  FaPen,
+  FaCheckSquare,
+  FaChevronDown,
+  FaRegTrashAlt
 } from 'react-icons/fa';
+
 import DatePicker from 'react-datepicker';
 import { es } from 'date-fns/locale';
 import 'react-datepicker/dist/react-datepicker.css';
 import '../../styles/Gastos.css';
 
-import { get_gastos, get_limite, agregar_gasto, set_limite, eliminar_gasto, get_categorias,get_usuario } from '../../endpoints/api';
+import { get_gastos, get_limite, agregar_gasto, set_limite, eliminar_gasto, get_categorias, get_usuario } from '../../endpoints/api';
+
+const mostrarAviso = (mensaje, tipo = "success") => {
+  if (tipo === "success") {
+    toast.success(mensaje);
+  } else if (tipo === "error") {
+    toast.error(mensaje);
+  } else if (tipo === "info") {
+    toast.info(mensaje);
+  } else if (tipo === "warn") {
+    toast.warn(mensaje);
+  }
+};
 
 const iconos = {
+  FaHome: <FaHome />,
   FaCar: <FaCar />,
   FaUtensils: <FaUtensils />,
-  FaHome: <FaHome />,
   FaSmile: <FaSmile />,
+  FaBriefcase: <FaBriefcase />,
+  FaGamepad: <FaGamepad />,
+  FaGift: <FaGift />,
+  FaHeart: <FaHeart />,
+  FaBook: <FaBook />,
+  FaShoppingCart: <FaShoppingCart />,
+  FaMoneyBillWave: <FaMoneyBillWave />,
+  FaBolt: <FaBolt />,
+  FaPaw: <FaPaw />,
+  FaBus: <FaBus />,
+  FaPhone: <FaPhone />,
+  FaLaptop: <FaLaptop />,
+  FaTint: <FaTint />,
+  FaStore: <FaStore />,
+  FaStethoscope: <FaStethoscope />,
+  FaTree: <FaTree />,
 };
 
 const CustomInput = React.forwardRef(({ value, onClick }, ref) => (
@@ -23,6 +81,21 @@ const CustomInput = React.forwardRef(({ value, onClick }, ref) => (
     {value} <FaChevronDown />
   </button>
 ));
+
+function mostrarAlertaConfirmacion(titulo, mensaje, icono, textoConfirmar, textoCancelar, onConfirmar) {
+  Swal.fire({
+    title: titulo,
+    text: mensaje,
+    icon: icono,
+    showCancelButton: true,
+    confirmButtonText: textoConfirmar,
+    cancelButtonText: textoCancelar
+  }).then((result) => {
+    if (result.isConfirmed) {
+      onConfirmar && onConfirmar();
+    }
+  });
+}
 
 function Gastos() {
   const [fechaSeleccionada, setFechaSeleccionada] = useState(new Date());
@@ -41,7 +114,10 @@ function Gastos() {
   const [fechaGasto, setFechaGasto] = useState(new Date());
 
   // Nuevo estado para controlar tipo de gasto (normal o fijo)
-  const [tipoGasto, setTipoGasto] = useState('Normal'); // 'normal' o 'fijo'
+  const [tipoGasto, setTipoGasto] = useState('Normal'); // 'Normal' o 'Fijo'
+
+  // Divisa
+  const [divisa, setDivisa] = useState('');
 
   useEffect(() => {
     const fetchNotes = async () => {
@@ -87,14 +163,38 @@ function Gastos() {
     setTotalRestante(restante);
   }, [totalGastado, limite]);
 
+  useEffect(() => {
+    const cargarDivisa = async () => {
+      const datos = await get_usuario();
+      setDivisa(datos.divisa);
+    };
+    cargarDivisa();
+  }, []);
+
+  useEffect(() => {
+    const alertaMostrada = sessionStorage.getItem('alertaConfirmacionMostrada');
+
+    if (!alertaMostrada) {
+      mostrarAlertaConfirmacion(
+        "¿Quieres registrar un gasto?",
+        "Recuerda registrar tus gastos para llevar un mejor control financiero.",
+        "warning",
+        "Entendido",
+        "Cancelar",
+        () => {}
+      );
+      sessionStorage.setItem('alertaConfirmacionMostrada', 'true');
+    }
+  }, []);
+
   const guardarLimite = async () => {
     try {
       await set_limite(limiteUsuario);
-      alert("Límite guardado correctamente");
       const nuevoLimite = await get_limite();
       setLimite(nuevoLimite);
+      mostrarAviso("Límite guardado con éxito!", "success");
     } catch (error) {
-      alert("Error al guardar el límite");
+      mostrarAviso("Hubo un error al guardar", "error");
     }
   };
 
@@ -103,15 +203,17 @@ function Gastos() {
       await eliminar_gasto(id);
       const gastosActualizados = await get_gastos();
       setNotes(gastosActualizados);
+      mostrarAviso("Gasto eliminado con éxito!", "success");
     } catch (error) {
       console.error("Error al eliminar el gasto:", error);
+      mostrarAviso("Hubo un error al eliminar el gasto", "error");
     }
   };
 
   const handleGuardarGasto = async (e) => {
     e.preventDefault();
     if (!categoriaSeleccionada || !monto) {
-      alert('Completa todos los campos');
+      mostrarAviso("Completa todos los campos", "warn");
       return;
     }
 
@@ -121,13 +223,30 @@ function Gastos() {
     const fechaFormateadaLocal = `${yyyy}-${mm}-${dd}`;
 
     try {
-      // Aquí podrías ajustar si tienes un API distinto para gastos fijos
-      // Por ahora, reutilizamos la misma función agregar_gasto
-      await agregar_gasto(nombre, fechaFormateadaLocal, monto, Number(categoriaSeleccionada.id),tipoGasto);
+      await agregar_gasto(nombre, fechaFormateadaLocal, monto, Number(categoriaSeleccionada.id), tipoGasto);
       const gastosActualizados = await get_gastos();
       setNotes(gastosActualizados);
+      mostrarAviso("Gasto agregado con éxito!", "success");
+      if (totalRestante <= 0) {
+        mostrarAlertaConfirmacion(
+          "Has superado el limite mensual",
+          "Recuerda no exceder el limite establecido y ser mas cuidadoso/a a la hora de hacer cambios.",
+          "warning",
+          "Entendido",
+          "Cancelar",
+          () => {}
+        );
+      }
+      mostrarAlertaConfirmacion(
+        "Has superado el limite mensual",
+        "Recuerda no exceder el limite establecido y ser mas cuidadoso/a a la hora de hacer cambios.",
+        "warning",
+        "Entendido",
+        "Cancelar",
+        () => {}
+      );
     } catch (error) {
-      console.error("Error al agregar gasto:", error);
+      mostrarAviso("Hubo un error al agregar el gasto", "error");
     }
 
     // Limpiar y cerrar modal
@@ -137,58 +256,56 @@ function Gastos() {
     setMostrarModal(false);
   };
 
-  const renderLimiteEditor = () => {
-    return (
-      <>
-        <span className={`limite-valor ${editandoLimite ? 'hidden' : 'visible'}`}>
-          ${limiteUsuario.toLocaleString("es-CL")}{divisa}
-        </span>
+  const renderLimiteEditor = () => (
+    <>
+      <span className={`limite-valor ${editandoLimite ? 'hidden' : 'visible'}`}>
+        ${limiteUsuario.toLocaleString("es-CL")}{divisa}
+      </span>
+
+      <button
+        className={`boton-editar-limite ${editandoLimite ? 'hidden' : 'visible'}`}
+        title="Editar límite"
+        onClick={() => {
+          setLimiteOriginal(Number(limiteUsuario));
+          setEditandoLimite(true);
+        }}
+      >
+        <FaPen />
+      </button>
+
+      <span className={`input-container ${editandoLimite ? 'visible' : 'hidden'}`}>
+        <span className="simbolo">$</span>
+        <input
+          type="number"
+          value={limiteUsuario}
+          onChange={(e) => setLimiteUsuario(Number(e.target.value))}
+          className="input-limite"
+        />
 
         <button
-          className={`boton-editar-limite ${editandoLimite ? 'hidden' : 'visible'}`}
-          title="Editar límite"
           onClick={() => {
-            setLimiteOriginal(Number(limiteUsuario));
-            setEditandoLimite(true);
+            setLimiteUsuario(limiteOriginal);
+            setEditandoLimite(false);
           }}
+          className="boton-limite-cancelar"
+          title="Cancelar edición"
         >
-          <FaPen />
+          <FaTimes />
         </button>
 
-        <span className={`input-container ${editandoLimite ? 'visible' : 'hidden'}`}>
-          <span className="simbolo">$</span>
-          <input
-            type="number"
-            value={limiteUsuario}
-            onChange={(e) => setLimiteUsuario(Number(e.target.value))}
-            className="input-limite"
-          />
-
-          <button
-            onClick={() => {
-              setLimiteUsuario(limiteOriginal);
-              setEditandoLimite(false);
-            }}
-            className="boton-limite-cancelar"
-            title="Cancelar edición"
-          >
-            <FaTimes />
-          </button>
-
-          <button
-            onClick={async () => {
-              await guardarLimite();
-              setEditandoLimite(false);
-            }}
-            className="boton-limite-check"
-            title="Guardar límite"
-          >
-            <FaCheckSquare />
-          </button>
-        </span>
-      </>
-    );
-  };
+        <button
+          onClick={async () => {
+            await guardarLimite();
+            setEditandoLimite(false);
+          }}
+          className="boton-limite-check"
+          title="Guardar límite"
+        >
+          <FaCheckSquare />
+        </button>
+      </span>
+    </>
+  );
 
   const diaSeleccionado = fechaSeleccionada.getDate().toString().padStart(2, '0');
   const mesSeleccionado = (fechaSeleccionada.getMonth() + 1).toString().padStart(2, '0');
@@ -199,17 +316,7 @@ function Gastos() {
     const [anio, mes, dia] = note.fecha.split('-');
     return anio === anioSeleccionado && mes === mesSeleccionado && dia === diaSeleccionado;
   });
-  //función del suso
-  const [divisa, setDivisa] = useState('');
-  useEffect(() => {
-    const cargarDivisa = async () => {
-      const datos = await get_usuario(); // función que harás en api.js
-      setDivisa(datos.divisa);
-    };
 
-    cargarDivisa();
-  }, []); 
-  console.log(divisa)
   return (
     <div className="gastos-layout">
       <div className="limite-info sticky-box">
@@ -298,7 +405,7 @@ function Gastos() {
             <button className="modal-close" onClick={() => setMostrarModal(false)}>
               <FaTimes />
             </button>
-            <h3>{tipoGasto === 'fijo' ? 'Nuevo Gasto Fijo' : 'Nuevo Gasto'}</h3>
+            <h3>{tipoGasto === 'Fijo' ? 'Nuevo Gasto Fijo' : 'Nuevo Gasto'}</h3>
 
             <label>Categoría:</label>
             <div className="icon-grid">
@@ -343,6 +450,7 @@ function Gastos() {
           </div>
         </div>
       )}
+      <ToastContainer position="top-right" autoClose={3000} />
     </div>
   );
 }

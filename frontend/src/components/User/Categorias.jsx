@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import '../../styles/Categorias.css';
+import { ToastContainer, toast } from "react-toastify";
 import {
   FaListUl,
   FaEdit,
@@ -30,13 +31,17 @@ import {
 
 import { agregar_categoria, eliminar_categoria, get_categorias } from '../../endpoints/api';
 
-const categoriasIniciales = [
-  { nombre: 'Renta', icono: <FaHome /> },
-  { nombre: 'Transporte', icono: <FaCar /> },
-  { nombre: 'Comida', icono: <FaUtensils /> },
-  { nombre: 'Entretenimiento', icono: <FaSmile /> },
-  { nombre: 'Trabajo', icono: <FaBriefcase /> },
-];
+const mostrarAviso = (mensaje, tipo = "success") => {
+  if (tipo === "success") {
+    toast.success(mensaje);
+  } else if (tipo === "error") {
+    toast.error(mensaje);
+  } else if (tipo === "info") {
+    toast.info(mensaje);
+  } else if (tipo === "warn") {
+    toast.warn(mensaje);
+  }
+};
 
 const iconosDisponibles = [
   { nombre: 'FaHome', icono: <FaHome /> },
@@ -84,7 +89,6 @@ const iconosDisponibles2 = {
   FaTree: <FaTree />,
 };
 
-
 function Categorias() {
   const [categorias, setCategorias] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
@@ -111,20 +115,16 @@ function Categorias() {
   };
 
   const handleEliminar = async (id) => {
-    const confirm = window.confirm("¿Seguro que deseas eliminar esta categoría?");
-    if (!confirm) return;
-
     try {
       await eliminar_categoria(id);
       const categoriasActualizados = await get_categorias();
       setCategorias(categoriasActualizados);
+      mostrarAviso("Categoría eliminada con éxito!", "success"); // <-- Alerta al eliminar
     } catch (error) {
       console.error("Error al eliminar la categoria:", error);
+      mostrarAviso("Error al eliminar la categoría", "error"); // <-- Alerta de error
     }
-
   };
-
-
 
   const handleCerrarModal = () => {
     setModalVisible(false);
@@ -134,53 +134,44 @@ function Categorias() {
     setIndiceEditando(null);
   };
 
-  /** ------------------------------------------------------------------------------------------ */
-  /** Traer las categorias de la base de datos y colocarlo en una variable */
-  //const [categorias, setCategorias] = useState([]) // [{id:1, nombre:categoria, usuario_id:1, name_icon:"FaCar"}, {id:2, nombre:bastian,...}]
   useEffect(() => {
     const fetchCategorias = async () => {
-      const cat = await get_categorias()
-      setCategorias(cat)
-    }
+      const cat = await get_categorias();
+      setCategorias(cat);
+    };
     fetchCategorias();
-  }, [])
-  console.log(categorias)
+  }, []);
 
-  /** Funcion para guardar el gasto en base de datos */
   const handleGuardar = async (e) => {
     e.preventDefault();
     if (!nuevoNombre || !iconoSeleccionado) {
-      alert("Completa el nombre y selecciona un ícono.");
+      mostrarAviso("Complete todos los campos y seleccione un icono", "warn");
       return;
     }
 
     const nuevaCategoria = {
-      nombre: nuevoNombre,                      // Nombre de la categoria
-      icono: iconoSeleccionado.icono.type.name, // Solo texto para BD = <FaHome /> -> FaHome
+      nombre: nuevoNombre,                      
+      icono: iconoSeleccionado.icono.type.name, 
     };
 
     if (modoEdicion) {
       const nuevas = [...categorias];
       nuevas[indiceEditando] = nuevaCategoria;
       setCategorias(nuevas);
+      mostrarAviso("Categoría actualizada con éxito!", "success"); // <-- Alerta actualización
     } else {
-      //setCategorias([...categorias, nuevaCategoria]);
       try {
-        const response = await agregar_categoria(nuevaCategoria.nombre, nuevaCategoria.icono); // 
-
-        // Ejecutar la funcion get_gastos() y asignarla en Notes (lista de gastos), por lo tanto se vuelve a ejecutar el return
-        // Mostrando de nuevo, la nueva base de datos
+        await agregar_categoria(nuevaCategoria.nombre, nuevaCategoria.icono);
         const categoriasActualizados = await get_categorias();
         setCategorias(categoriasActualizados);
-
+        mostrarAviso("Categoría agregada con éxito!", "success"); // <-- Alerta al agregar
       } catch (error) {
-        console.error("Error al agregar categoria:", error);
+        mostrarAviso("Error al agregar categoría", "error");
       }
     }
 
     handleCerrarModal();
   };
-  /** */
 
   return (
     <div className="categorias-section">
@@ -230,7 +221,6 @@ function Categorias() {
         {categorias.map((cat, idx) => (
           <div className="categoria-card" key={idx}>
             <div className="card-actions">
-              <button className="edit-btn" onClick={() => handleEditar(cat.id)}><FaEdit /></button>
               <button className="delete-btn" onClick={() => handleEliminar(cat.id)}><FaTrash /></button>
             </div>
             <div className="card-content">
@@ -240,6 +230,7 @@ function Categorias() {
           </div>
         ))}
       </div>
+      <ToastContainer position="top-right" autoClose={3000} />
     </div>
   );
 }
