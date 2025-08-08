@@ -38,7 +38,10 @@ function Gastos() {
   const [monto, setMonto] = useState('');
   const [totalGastado, setTotalGastado] = useState(0);
   const [totalRestante, setTotalRestante] = useState(0);
+  const [fechaGasto, setFechaGasto] = useState(new Date());
 
+  // Nuevo estado para controlar tipo de gasto (normal o fijo)
+  const [tipoGasto, setTipoGasto] = useState('normal'); // 'normal' o 'fijo'
 
   useEffect(() => {
     const fetchNotes = async () => {
@@ -112,12 +115,14 @@ function Gastos() {
       return;
     }
 
-    const yyyy = fechaSeleccionada.getFullYear();
-    const mm = String(fechaSeleccionada.getMonth() + 1).padStart(2, '0');
-    const dd = String(fechaSeleccionada.getDate()).padStart(2, '0');
+    const yyyy = fechaGasto.getFullYear();
+    const mm = String(fechaGasto.getMonth() + 1).padStart(2, '0');
+    const dd = String(fechaGasto.getDate()).padStart(2, '0');
     const fechaFormateadaLocal = `${yyyy}-${mm}-${dd}`;
 
     try {
+      // Aquí podrías ajustar si tienes un API distinto para gastos fijos
+      // Por ahora, reutilizamos la misma función agregar_gasto
       await agregar_gasto(nombre, fechaFormateadaLocal, monto, Number(categoriaSeleccionada.id));
       const gastosActualizados = await get_gastos();
       setNotes(gastosActualizados);
@@ -125,6 +130,7 @@ function Gastos() {
       console.error("Error al agregar gasto:", error);
     }
 
+    // Limpiar y cerrar modal
     setCategoriaSeleccionada(null);
     setNombre('');
     setMonto('');
@@ -132,59 +138,57 @@ function Gastos() {
   };
 
   const renderLimiteEditor = () => {
-  return (
-    <>
-      <span className={`limite-valor ${editandoLimite ? 'hidden' : 'visible'}`}>
-        ${limiteUsuario.toLocaleString("es-CL")}
-      </span>
-
-      <button
-        className={`boton-editar-limite ${editandoLimite ? 'hidden' : 'visible'}`}
-        title="Editar límite"
-        onClick={() => {
-          setLimiteOriginal(Number(limiteUsuario));
-          setEditandoLimite(true);
-        }}
-      >
-        <FaPen />
-      </button>
-
-      <span className={`input-container ${editandoLimite ? 'visible' : 'hidden'}`}>
-        <span className="simbolo">$</span>
-        <input
-          type="number"
-          value={limiteUsuario}
-          onChange={(e) => setLimiteUsuario(Number(e.target.value))}
-          className="input-limite"
-        />
+    return (
+      <>
+        <span className={`limite-valor ${editandoLimite ? 'hidden' : 'visible'}`}>
+          ${limiteUsuario.toLocaleString("es-CL")}
+        </span>
 
         <button
+          className={`boton-editar-limite ${editandoLimite ? 'hidden' : 'visible'}`}
+          title="Editar límite"
           onClick={() => {
-            setLimiteUsuario(limiteOriginal);
-            setEditandoLimite(false);
+            setLimiteOriginal(Number(limiteUsuario));
+            setEditandoLimite(true);
           }}
-          className="boton-limite-cancelar"
-          title="Cancelar edición"
         >
-          <FaTimes />
+          <FaPen />
         </button>
 
-        <button
-          onClick={async () => {
-            await guardarLimite();
-            setEditandoLimite(false);
-          }}
-          className="boton-limite-check"
-          title="Guardar límite"
-        >
-          <FaCheckSquare />
-        </button>
-      </span>
-    </>
-  );
-};
+        <span className={`input-container ${editandoLimite ? 'visible' : 'hidden'}`}>
+          <span className="simbolo">$</span>
+          <input
+            type="number"
+            value={limiteUsuario}
+            onChange={(e) => setLimiteUsuario(Number(e.target.value))}
+            className="input-limite"
+          />
 
+          <button
+            onClick={() => {
+              setLimiteUsuario(limiteOriginal);
+              setEditandoLimite(false);
+            }}
+            className="boton-limite-cancelar"
+            title="Cancelar edición"
+          >
+            <FaTimes />
+          </button>
 
+          <button
+            onClick={async () => {
+              await guardarLimite();
+              setEditandoLimite(false);
+            }}
+            className="boton-limite-check"
+            title="Guardar límite"
+          >
+            <FaCheckSquare />
+          </button>
+        </span>
+      </>
+    );
+  };
 
   const diaSeleccionado = fechaSeleccionada.getDate().toString().padStart(2, '0');
   const mesSeleccionado = (fechaSeleccionada.getMonth() + 1).toString().padStart(2, '0');
@@ -221,8 +225,32 @@ function Gastos() {
         <p><strong>Gastado:</strong> ${totalGastado.toLocaleString("es-CL")}</p>
         <p><strong>Disponible:</strong> ${totalRestante.toLocaleString("es-CL")}</p>
 
-        <button className="agregar-btn" onClick={() => setMostrarModal(true)}>
+        <button
+          className="agregar-btn"
+          onClick={() => {
+            setMostrarModal(true);
+            setFechaGasto(new Date());
+            setTipoGasto('normal');
+            setCategoriaSeleccionada(null);
+            setNombre('');
+            setMonto('');
+          }}
+        >
           <FaPlus /> Agregar Gasto
+        </button>
+
+        <button
+          className="agregar-fijo-btn"
+          onClick={() => {
+            setMostrarModal(true);
+            setFechaGasto(new Date());
+            setTipoGasto('fijo');
+            setCategoriaSeleccionada(null);
+            setNombre('');
+            setMonto('');
+          }}
+        >
+          <FaPlus /> Agregar Gasto Fijo
         </button>
       </div>
 
@@ -260,7 +288,7 @@ function Gastos() {
             <button className="modal-close" onClick={() => setMostrarModal(false)}>
               <FaTimes />
             </button>
-            <h3>Nuevo Gasto</h3>
+            <h3>{tipoGasto === 'fijo' ? 'Nuevo Gasto Fijo' : 'Nuevo Gasto'}</h3>
 
             <label>Categoría:</label>
             <div className="icon-grid">
@@ -277,13 +305,13 @@ function Gastos() {
             </div>
 
             <label>Fecha:</label>
-            <div>
-              {fechaSeleccionada.toLocaleDateString("es-CL", {
-                day: "2-digit",
-                month: "long",
-                year: "numeric"
-              })}
-            </div>
+            <DatePicker
+              selected={fechaGasto}
+              onChange={(date) => setFechaGasto(date)}
+              dateFormat="dd 'de' MMMM, yyyy"
+              locale={es}
+              className="custom-datepicker"
+            />
 
             <label>Nombre:</label>
             <input
